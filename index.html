@@ -107,6 +107,10 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
   transition: all 0.3s;
 }
 .card:hover { border-color: rgba(0,176,255,0.3); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+.card-img {
+  width: 100%; aspect-ratio: 1/1; object-fit: contain;
+  background: var(--light); border-radius: 8px; margin-bottom: 12px;
+}
 .brand-tag {
   display: inline-block; font-size: 10px; font-weight: 700; color: var(--blue);
   text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;
@@ -177,7 +181,7 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
 </footer>
 
 <script>
-  const API_BASE = "";
+  const API_BASE = "https://alva-sync-worker.YOUR-SUBDOMAIN.workers.dev";
   let allProducts = [], activeBrand = "", searchTerm = "";
 
   function formatRupiah(n) {
@@ -206,6 +210,7 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
     msg.style.display = "none";
     grid.innerHTML = filtered.map(p => `
       <div class="card">
+        ${p.image ? `<img class="card-img" src="${p.image}" alt="${p.name || ''}" loading="lazy" onerror="this.style.display='none'">` : ''}
         <span class="brand-tag">${p.brand || "-"}</span>
         <h3>${p.name || "Nama tidak tersedia"}</h3>
         <div class="sku">${p.sku || "-"}</div>
