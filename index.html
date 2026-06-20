@@ -134,6 +134,31 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
 }
 .footer a { color: var(--white); }
 .footer a:hover { color: var(--blue); }
+
+.price-row { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+.price-change { font-size: 12px; font-weight: 700; }
+.price-change.up { color: #dc2626; }
+.price-change.down { color: var(--green); }
+.card-actions { display: flex; gap: 8px; margin-top: 12px; }
+.btn-wa-card {
+  flex: 1; text-align: center; font-size: 12px; font-weight: 700;
+  padding: 7px 10px; border-radius: 8px; background: #ecfdf3; color: var(--green);
+  border: 1px solid #bbf7d0;
+}
+.btn-wa-card:hover { background: #16a34a; color: var(--white); }
+.btn-export {
+  background: var(--navy); color: var(--white); border: none;
+  padding: 9px 18px; border-radius: 9999px; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-export:hover { background: var(--blue); }
+@media (max-width: 480px) {
+  .toolbar { flex-direction: column; align-items: stretch; }
+  .search, .btn-export { margin-left: 0; width: 100%; }
+  .hero-title { font-size: 24px; }
+  .grid { grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 12px; }
+  .card { padding: 12px; }
+}
 </style>
 </head>
 <body>
@@ -168,6 +193,7 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
     <button data-brand="Seagate">Seagate</button>
     <button data-brand="WD">WD</button>
     <input class="search" id="searchInput" placeholder="Cari nama / SKU…">
+    <button class="btn-export" id="exportBtn">Download Excel</button>
   </div>
 </div>
 
@@ -180,8 +206,9 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
   Data internal — disinkronkan dari alvamitra.com. © PT Jaringan Semesta Raya.
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-  const API_BASE = "https://alva-sync-worker.YOUR-SUBDOMAIN.workers.dev";
+  const API_BASE = "";
   let allProducts = [], activeBrand = "", searchTerm = "";
 
   function formatRupiah(n) {
@@ -214,8 +241,15 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
         <span class="brand-tag">${p.brand || "-"}</span>
         <h3>${p.name || "Nama tidak tersedia"}</h3>
         <div class="sku">${p.sku || "-"}</div>
-        <div class="price">${formatRupiah(p.price)}</div>
+        <div class="price-row">
+          <div class="price">${formatRupiah(p.price)}</div>
+          ${p.priceChange === "up" ? `<span class="price-change up">▲ +${formatRupiah(p.priceDelta)}</span>` : ""}
+          ${p.priceChange === "down" ? `<span class="price-change down">▼ -${formatRupiah(p.priceDelta)}</span>` : ""}
+        </div>
         <span class="stock ${(p.availability||"").toLowerCase()==="ready"?"ready":"lainnya"}">${p.availability || "Status tidak diketahui"}</span>
+        <div class="card-actions">
+          <a class="btn-wa-card" target="_blank" href="https://wa.me/?text=${encodeURIComponent((p.name||"") + " - " + formatRupiah(p.price) + " (" + (p.availability||"") + ")")}">Salin ke WhatsApp</a>
+        </div>
       </div>
     `).join("");
   }
@@ -245,6 +279,22 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
     });
   });
   document.getElementById("searchInput").addEventListener("input", e => { searchTerm = e.target.value.toLowerCase(); render(); });
+
+  function exportExcel() {
+    const rows = allProducts.map(p => ({
+      Merek: p.brand || "-",
+      Nama: p.name || "-",
+      SKU: p.sku || "-",
+      Harga: p.price || 0,
+      Status: p.availability || "-",
+      "Update Terakhir": p.updatedAt || "-",
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Katalog");
+    XLSX.writeFile(wb, "katalog-alvamitra-" + new Date().toISOString().slice(0,10) + ".xlsx");
+  }
+  document.getElementById("exportBtn").addEventListener("click", exportExcel);
 
   loadData();
 </script>
