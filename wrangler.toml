@@ -1,0 +1,16 @@
+name = "alva-sync-worker"
+main = "worker.js"
+compatibility_date = "2026-06-01"
+
+kv_namespaces = [
+  { binding = "PRODUCTS_KV", id = "REPLACE_WITH_KV_NAMESPACE_ID" }
+]
+
+# Dua jadwal terpisah dibedakan lewat cron expression di dalam scheduled handler:
+# - "0 3 1 * *"  -> tanggal 1 tiap bulan jam 03:00 UTC -> full sync (sitemap + filter merek)
+# - "0 20 * * *" -> tiap hari jam 20:00 UTC (03:00 WIB) -> update harga & stok produk terfilter
+[triggers]
+crons = ["0 3 1 * *", "0 20 * * *"]
+
+# Secrets (set lewat: wrangler secret put NIMBLE_API_KEY)
+# NIMBLE_API_KEY wajib diisi sebelum deploy — lihat README.md

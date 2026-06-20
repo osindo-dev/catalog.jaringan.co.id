@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Katalog Internal — PT Jaringan Semesta Raya</title>
+<style>
+*, ::before, ::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy: #0F3C8A;
+  --blue: #00B0FF;
+  --dark: #0B3C5D;
+  --slate: #1E293B;
+  --light: #F8FAFC;
+  --white: #FFFFFF;
+  --green: #16a34a;
+  --amber: #d97706;
+}
+body {
+  background-color: var(--light);
+  color: var(--slate);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+a { text-decoration: none; color: inherit; }
+
+/* Navbar */
+.navbar {
+  position: fixed; top: 0; left: 0; width: 100%;
+  background-color: rgba(255,255,255,0.9);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid #f1f5f9; z-index: 50; height: 80px;
+}
+.nav-container {
+  max-width: 1280px; margin: 0 auto; padding: 0 24px; height: 100%;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo-title {
+  font-size: 14px; font-weight: 900; color: var(--navy);
+  text-transform: uppercase; letter-spacing: 0.05em; line-height: 1;
+}
+.logo-subtitle {
+  font-size: 12px; font-weight: 700; color: var(--blue);
+  text-transform: uppercase; letter-spacing: 0.1em; margin-top: 2px;
+}
+.meta-sync { font-size: 12px; color: #64748b; }
+
+/* Hero */
+.hero {
+  position: relative; padding: 128px 24px 56px; overflow: hidden;
+}
+@media (min-width: 768px) { .hero { padding-top: 176px; padding-bottom: 72px; } }
+.bg-blur {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 600px; height: 600px; background-color: rgba(0,176,255,0.05);
+  border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: -10;
+}
+.hero-container { max-width: 1024px; margin: 0 auto; text-align: center; }
+.badge {
+  display: inline-block; background-color: rgba(15,60,138,0.05); color: var(--navy);
+  padding: 6px 16px; border-radius: 9999px; font-size: 12px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 24px;
+}
+.hero-title {
+  font-size: 28px; font-weight: 900; color: var(--navy);
+  line-height: 1.25; letter-spacing: -0.025em; margin-bottom: 20px;
+}
+@media (min-width: 640px) { .hero-title { font-size: 36px; } }
+.text-gradient {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hero-desc {
+  font-size: 16px; color: #475569; max-width: 680px;
+  margin: 0 auto 32px auto; line-height: 1.625;
+}
+
+/* Toolbar */
+.toolbar-wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+.toolbar {
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+  margin-bottom: 28px;
+}
+.toolbar button {
+  border: 1px solid #e2e8f0; background: var(--white); color: #475569;
+  padding: 8px 16px; border-radius: 9999px; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+}
+.toolbar button.active, .toolbar button:hover {
+  background: var(--navy); border-color: var(--navy); color: var(--white);
+}
+.search {
+  margin-left: auto; border: 1px solid #e2e8f0; border-radius: 8px;
+  padding: 9px 14px; font-size: 13px; width: 220px;
+}
+
+/* Grid / cards */
+main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
+.grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 16px; padding: 0 24px;
+}
+.card {
+  background: var(--white); border-radius: 16px; padding: 18px;
+  border: 1px solid #f1f5f9; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: all 0.3s;
+}
+.card:hover { border-color: rgba(0,176,255,0.3); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+.brand-tag {
+  display: inline-block; font-size: 10px; font-weight: 700; color: var(--blue);
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;
+}
+.card h3 { font-size: 14px; font-weight: 800; color: var(--navy); margin-bottom: 6px; line-height: 1.4; }
+.sku { font-size: 11px; color: #94a3b8; margin-bottom: 12px; font-family: monospace; }
+.price { font-size: 18px; font-weight: 900; color: var(--dark); margin-bottom: 10px; }
+.stock {
+  display: inline-flex; align-items: center; gap: 5px; font-size: 11px;
+  font-weight: 700; padding: 4px 10px; border-radius: 9999px;
+}
+.stock.ready { background: #ecfdf3; color: var(--green); }
+.stock.lainnya { background: #fef3c7; color: var(--amber); }
+
+.state-msg { text-align: center; padding: 60px 24px; color: #94a3b8; font-size: 14px; }
+
+/* Footer */
+.footer {
+  background-color: var(--slate); color: #94a3b8;
+  padding: 40px 24px; text-align: center; font-size: 12px; margin-top: 40px;
+}
+.footer a { color: var(--white); }
+.footer a:hover { color: var(--blue); }
+</style>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="nav-container">
+    <div>
+      <span class="logo-title" style="display:block;">PT Jaringan Semesta Raya</span>
+      <span class="logo-subtitle" style="display:block;">Katalog Internal</span>
+    </div>
+    <div class="meta-sync" id="lastSync">Memuat info sinkronisasi…</div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="bg-blur"></div>
+  <div class="hero-container">
+    <span class="badge">Internal · Tidak untuk publik</span>
+    <h1 class="hero-title">Referensi Harga <span class="text-gradient">AlvaMitra</span><br>Merek Terpilih untuk Proposal &amp; Pengadaan</h1>
+    <p class="hero-desc">Data disinkronkan otomatis dari katalog distributor — Hikvision, HiLook, Ezviz, Sandisk, Synology, Seagate, WD. Hanya untuk referensi internal tim, bukan halaman jual.</p>
+  </div>
+</section>
+
+<div class="toolbar-wrap">
+  <div class="toolbar">
+    <button class="active" data-brand="">Semua merek</button>
+    <button data-brand="Hikvision">Hikvision</button>
+    <button data-brand="HiLook">HiLook</button>
+    <button data-brand="Ezviz">Ezviz</button>
+    <button data-brand="Sandisk">Sandisk</button>
+    <button data-brand="Synology">Synology</button>
+    <button data-brand="Seagate">Seagate</button>
+    <button data-brand="WD">WD</button>
+    <input class="search" id="searchInput" placeholder="Cari nama / SKU…">
+  </div>
+</div>
+
+<main>
+  <div id="grid" class="grid"></div>
+  <div id="stateMsg" class="state-msg" style="display:none;"></div>
+</main>
+
+<footer class="footer">
+  Data internal — disinkronkan dari alvamitra.com. © PT Jaringan Semesta Raya.
+</footer>
+
+<script>
+  const API_BASE = "https://alva-sync-worker.sugianto-kris.workers.dev";
+  let allProducts = [], activeBrand = "", searchTerm = "";
+
+  function formatRupiah(n) {
+    if (!n) return "Harga tidak tersedia";
+    return "Rp " + Number(n).toLocaleString("id-ID");
+  }
+
+  function render() {
+    const grid = document.getElementById("grid");
+    const msg = document.getElementById("stateMsg");
+    const filtered = allProducts.filter(p => {
+      const matchBrand = !activeBrand || (p.brand || "").toLowerCase() === activeBrand.toLowerCase();
+      const matchSearch = !searchTerm ||
+        (p.name || "").toLowerCase().includes(searchTerm) ||
+        (p.sku || "").toLowerCase().includes(searchTerm);
+      return matchBrand && matchSearch;
+    });
+    if (filtered.length === 0) {
+      grid.innerHTML = "";
+      msg.style.display = "block";
+      msg.textContent = allProducts.length === 0
+        ? "Belum ada data. Jalankan sinkronisasi pertama di Worker (/sync/full)."
+        : "Tidak ada produk yang cocok dengan filter ini.";
+      return;
+    }
+    msg.style.display = "none";
+    grid.innerHTML = filtered.map(p => `
+      <div class="card">
+        <span class="brand-tag">${p.brand || "-"}</span>
+        <h3>${p.name || "Nama tidak tersedia"}</h3>
+        <div class="sku">${p.sku || "-"}</div>
+        <div class="price">${formatRupiah(p.price)}</div>
+        <span class="stock ${(p.availability||"").toLowerCase()==="ready"?"ready":"lainnya"}">${p.availability || "Status tidak diketahui"}</span>
+      </div>
+    `).join("");
+  }
+
+  async function loadData() {
+    try {
+      const [pr, mr] = await Promise.all([fetch(`${API_BASE}/products`), fetch(`${API_BASE}/meta`)]);
+      allProducts = await pr.json();
+      const meta = await mr.json();
+      document.getElementById("lastSync").textContent = meta.lastDailySync
+        ? `Update: ${new Date(meta.lastDailySync).toLocaleString("id-ID")}`
+        : (meta.lastFullSync ? `Full sync: ${new Date(meta.lastFullSync).toLocaleString("id-ID")}` : "Belum pernah sinkron");
+      render();
+    } catch (e) {
+      document.getElementById("stateMsg").style.display = "block";
+      document.getElementById("stateMsg").textContent = "Gagal memuat data — cek apakah Worker sudah di-deploy dan API_BASE sudah benar.";
+      document.getElementById("lastSync").textContent = "Tidak terhubung";
+    }
+  }
+
+  document.querySelectorAll(".toolbar button[data-brand]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".toolbar button[data-brand]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      activeBrand = btn.dataset.brand;
+      render();
+    });
+  });
+  document.getElementById("searchInput").addEventListener("input", e => { searchTerm = e.target.value.toLowerCase(); render(); });
+
+  loadData();
+</script>
+</body>
+</html>
