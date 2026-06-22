@@ -15,6 +15,7 @@
   --white: #FFFFFF;
   --green: #16a34a;
   --amber: #d97706;
+  --border: #e2e8f0;
 }
 body {
   background-color: var(--light);
@@ -28,9 +29,9 @@ a { text-decoration: none; color: inherit; }
 /* Navbar */
 .navbar {
   position: fixed; top: 0; left: 0; width: 100%;
-  background-color: rgba(255,255,255,0.9);
+  background-color: rgba(255,255,255,0.95);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid #f1f5f9; z-index: 50; height: 80px;
+  border-bottom: 1px solid var(--border); z-index: 50; height: 64px;
 }
 .nav-container {
   max-width: 1280px; margin: 0 auto; padding: 0 24px; height: 100%;
@@ -41,16 +42,15 @@ a { text-decoration: none; color: inherit; }
   text-transform: uppercase; letter-spacing: 0.05em; line-height: 1;
 }
 .logo-subtitle {
-  font-size: 12px; font-weight: 700; color: var(--blue);
+  font-size: 11px; font-weight: 700; color: var(--blue);
   text-transform: uppercase; letter-spacing: 0.1em; margin-top: 2px;
 }
 .meta-sync { font-size: 12px; color: #64748b; }
 
 /* Hero */
 .hero {
-  position: relative; padding: 128px 24px 56px; overflow: hidden;
+  position: relative; padding: 100px 24px 48px; overflow: hidden;
 }
-@media (min-width: 768px) { .hero { padding-top: 176px; padding-bottom: 72px; } }
 .bg-blur {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
   width: 600px; height: 600px; background-color: rgba(0,176,255,0.05);
@@ -59,106 +59,152 @@ a { text-decoration: none; color: inherit; }
 .hero-container { max-width: 1024px; margin: 0 auto; text-align: center; }
 .badge {
   display: inline-block; background-color: rgba(15,60,138,0.05); color: var(--navy);
-  padding: 6px 16px; border-radius: 9999px; font-size: 12px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 24px;
+  padding: 5px 14px; border-radius: 9999px; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px;
 }
 .hero-title {
-  font-size: 28px; font-weight: 900; color: var(--navy);
-  line-height: 1.25; letter-spacing: -0.025em; margin-bottom: 20px;
+  font-size: 26px; font-weight: 900; color: var(--navy);
+  line-height: 1.25; letter-spacing: -0.025em; margin-bottom: 12px;
 }
-@media (min-width: 640px) { .hero-title { font-size: 36px; } }
+@media (min-width: 640px) { .hero-title { font-size: 34px; } }
 .text-gradient {
   background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
 }
 .hero-desc {
-  font-size: 16px; color: #475569; max-width: 680px;
-  margin: 0 auto 32px auto; line-height: 1.625;
+  font-size: 15px; color: #475569; max-width: 640px;
+  margin: 0 auto 0 auto; line-height: 1.625;
 }
 
-/* Toolbar */
-.toolbar-wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
-.toolbar {
-  display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
-  margin-bottom: 28px;
+/* Filter wrapper */
+.filter-wrap {
+  max-width: 1100px; margin: 0 auto;
+  padding: 28px 24px 0;
 }
-.toolbar button {
-  border: 1px solid #e2e8f0; background: var(--white); color: #475569;
-  padding: 8px 16px; border-radius: 9999px; font-size: 13px; font-weight: 600;
-  cursor: pointer; transition: all 0.2s;
+
+/* ── Kategori (segmented scrollable) ── */
+.filter-label {
+  font-size: 11px; font-weight: 700; color: #94a3b8;
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;
 }
-.toolbar button.active, .toolbar button:hover {
-  background: var(--navy); border-color: var(--navy); color: var(--white);
+.seg-scroll {
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  padding-bottom: 4px; margin-bottom: 16px;
+}
+.seg-scroll::-webkit-scrollbar { display: none; }
+.seg-track {
+  display: inline-flex; gap: 0;
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 12px; padding: 4px;
+  white-space: nowrap; min-width: 100%;
+}
+.seg-btn {
+  flex: 0 0 auto;
+  border: none; background: transparent; color: #64748b;
+  padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.18s; white-space: nowrap;
+}
+.seg-btn.active {
+  background: var(--navy); color: var(--white);
+  box-shadow: 0 1px 4px rgba(15,60,138,0.25);
+}
+.seg-btn:not(.active):hover { background: var(--light); color: var(--navy); }
+
+/* ── Sub-kategori (chips kecil, muncul saat kategori dipilih) ── */
+.subcat-row {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-bottom: 16px; min-height: 0;
+  overflow: hidden; transition: max-height 0.25s ease;
+}
+.subcat-row.hidden { display: none; }
+.chip {
+  border: 1px solid var(--border); background: var(--white); color: #475569;
+  padding: 5px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+}
+.chip.active { background: var(--blue); border-color: var(--blue); color: var(--white); }
+.chip:not(.active):hover { border-color: var(--navy); color: var(--navy); }
+
+/* ── Brand (segmented scrollable, baris kedua) ── */
+/* sama pakai .seg-scroll + .seg-track + .seg-btn */
+
+/* ── Search & export row ── */
+.action-row {
+  display: flex; gap: 10px; align-items: center; margin-bottom: 24px;
+  flex-wrap: wrap;
 }
 .search {
-  margin-left: auto; border: 1px solid #e2e8f0; border-radius: 8px;
-  padding: 9px 14px; font-size: 13px; width: 220px;
+  flex: 1; min-width: 180px;
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 9px 14px; font-size: 13px; background: var(--white);
 }
+.search:focus { outline: 2px solid var(--blue); border-color: transparent; }
+.btn-export {
+  background: var(--navy); color: var(--white); border: none;
+  padding: 9px 18px; border-radius: 10px; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.btn-export:hover { background: var(--blue); }
 
 /* Grid / cards */
 main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
 .grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 16px; padding: 0 24px;
 }
 .card {
-  background: var(--white); border-radius: 16px; padding: 18px;
+  background: var(--white); border-radius: 16px; padding: 16px;
   border: 1px solid #f1f5f9; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  transition: all 0.3s;
+  transition: all 0.25s; display: block; color: inherit; text-decoration: none;
 }
-.card { color: inherit; text-decoration: none; }
-.card:hover { border-color: rgba(0,176,255,0.3); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+.card:hover { border-color: rgba(0,176,255,0.35); box-shadow: 0 4px 12px rgba(0,0,0,0.07); transform: translateY(-1px); }
 .card-img {
   width: 100%; aspect-ratio: 1/1; object-fit: contain;
-  background: var(--light); border-radius: 8px; margin-bottom: 12px;
+  background: var(--light); border-radius: 10px; margin-bottom: 12px;
 }
 .brand-tag {
   display: inline-block; font-size: 10px; font-weight: 700; color: var(--blue);
-  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;
 }
-.card h3 { font-size: 14px; font-weight: 800; color: var(--navy); margin-bottom: 6px; line-height: 1.4; }
-.sku { font-size: 11px; color: #94a3b8; margin-bottom: 12px; font-family: monospace; }
-.price { font-size: 18px; font-weight: 900; color: var(--dark); margin-bottom: 10px; }
+.card h3 { font-size: 13px; font-weight: 800; color: var(--navy); margin-bottom: 4px; line-height: 1.4; }
+.sku { font-size: 10px; color: #94a3b8; margin-bottom: 10px; font-family: monospace; }
+.price-row { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.price { font-size: 17px; font-weight: 900; color: var(--dark); }
+.price-change { font-size: 11px; font-weight: 700; }
+.price-change.up { color: #dc2626; }
+.price-change.down { color: var(--green); }
 .stock {
-  display: inline-flex; align-items: center; gap: 5px; font-size: 11px;
-  font-weight: 700; padding: 4px 10px; border-radius: 9999px;
+  display: inline-flex; align-items: center; font-size: 11px;
+  font-weight: 700; padding: 3px 10px; border-radius: 9999px; margin-bottom: 10px;
 }
 .stock.ready { background: #ecfdf3; color: var(--green); }
 .stock.lainnya { background: #fef3c7; color: var(--amber); }
+.card-actions { margin-top: 10px; }
+.btn-wa-card {
+  display: block; text-align: center; font-size: 12px; font-weight: 700;
+  padding: 7px 10px; border-radius: 8px; background: #ecfdf3; color: var(--green);
+  border: 1px solid #bbf7d0; cursor: pointer;
+}
+.btn-wa-card:hover { background: #16a34a; color: var(--white); }
 
 .state-msg { text-align: center; padding: 60px 24px; color: #94a3b8; font-size: 14px; }
 
 /* Footer */
 .footer {
   background-color: var(--slate); color: #94a3b8;
-  padding: 40px 24px; text-align: center; font-size: 12px; margin-top: 40px;
+  padding: 32px 24px; text-align: center; font-size: 12px; margin-top: 40px;
 }
-.footer a { color: var(--white); }
-.footer a:hover { color: var(--blue); }
 
-.price-row { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
-.price-change { font-size: 12px; font-weight: 700; }
-.price-change.up { color: #dc2626; }
-.price-change.down { color: var(--green); }
-.card-actions { display: flex; gap: 8px; margin-top: 12px; }
-.btn-wa-card {
-  flex: 1; text-align: center; font-size: 12px; font-weight: 700;
-  padding: 7px 10px; border-radius: 8px; background: #ecfdf3; color: var(--green);
-  border: 1px solid #bbf7d0;
-}
-.btn-wa-card:hover { background: #16a34a; color: var(--white); }
-.btn-export {
-  background: var(--navy); color: var(--white); border: none;
-  padding: 9px 18px; border-radius: 9999px; font-size: 13px; font-weight: 700;
-  cursor: pointer; transition: all 0.2s;
-}
-.btn-export:hover { background: var(--blue); }
+/* Mobile */
 @media (max-width: 480px) {
-  .toolbar { flex-direction: column; align-items: stretch; }
-  .search, .btn-export { margin-left: 0; width: 100%; }
-  .hero-title { font-size: 24px; }
-  .grid { grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 12px; }
+  .hero { padding-top: 88px; padding-bottom: 32px; }
+  .hero-title { font-size: 22px; }
+  .filter-wrap { padding: 20px 16px 0; }
+  .grid { grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px; }
   .card { padding: 12px; }
+  .action-row { flex-direction: column; align-items: stretch; }
+  .btn-export { text-align: center; }
 }
 </style>
 </head>
@@ -170,7 +216,7 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
       <span class="logo-title" style="display:block;">PT Jaringan Semesta Raya</span>
       <span class="logo-subtitle" style="display:block;">Katalog Internal</span>
     </div>
-    <div class="meta-sync" id="lastSync">Memuat info sinkronisasi…</div>
+    <div class="meta-sync" id="lastSync">Memuat…</div>
   </div>
 </header>
 
@@ -179,20 +225,49 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
   <div class="hero-container">
     <span class="badge">Internal · Tidak untuk publik</span>
     <h1 class="hero-title">Referensi Harga <span class="text-gradient">AlvaMitra</span><br>Merek Terpilih untuk Proposal &amp; Pengadaan</h1>
-    <p class="hero-desc">Data disinkronkan otomatis dari katalog distributor — Hikvision, HiLook, Ezviz, Sandisk, Synology, Seagate, WD. Hanya untuk referensi internal tim, bukan halaman jual.</p>
+    <p class="hero-desc">Data disinkronkan otomatis dari katalog distributor — Hikvision, HiLook, Ezviz, Sandisk, Synology, Seagate, WD.</p>
   </div>
 </section>
 
-<div class="toolbar-wrap">
-  <div class="toolbar">
-    <button class="active" data-brand="">Semua merek</button>
-    <button data-brand="Hikvision">Hikvision</button>
-    <button data-brand="HiLook">HiLook</button>
-    <button data-brand="Ezviz">Ezviz</button>
-    <button data-brand="Sandisk">Sandisk</button>
-    <button data-brand="Synology">Synology</button>
-    <button data-brand="Seagate">Seagate</button>
-    <button data-brand="WD">WD</button>
+<div class="filter-wrap">
+
+  <!-- Kategori -->
+  <div class="filter-label">Kategori</div>
+  <div class="seg-scroll" id="catScroll">
+    <div class="seg-track" id="catTrack">
+      <button class="seg-btn active" data-cat="">Semua</button>
+      <button class="seg-btn" data-cat="Access Control">Access Control</button>
+      <button class="seg-btn" data-cat="ANALOG HD">Analog HD</button>
+      <button class="seg-btn" data-cat="DVR">DVR</button>
+      <button class="seg-btn" data-cat="HDD">HDD</button>
+      <button class="seg-btn" data-cat="IP CAM">IP CAM</button>
+      <button class="seg-btn" data-cat="NAS">NAS</button>
+      <button class="seg-btn" data-cat="Networking">Networking</button>
+      <button class="seg-btn" data-cat="NVR">NVR</button>
+      <button class="seg-btn" data-cat="Power Supply">Power Supply</button>
+    </div>
+  </div>
+
+  <!-- Sub-kategori (muncul saat kategori dipilih, data dari AlvaMitra) -->
+  <div class="subcat-row hidden" id="subcatRow"></div>
+
+  <!-- Brand -->
+  <div class="filter-label">Merek</div>
+  <div class="seg-scroll" id="brandScroll">
+    <div class="seg-track" id="brandTrack">
+      <button class="seg-btn active" data-brand="">Semua merek</button>
+      <button class="seg-btn" data-brand="Hikvision">Hikvision</button>
+      <button class="seg-btn" data-brand="HiLook">HiLook</button>
+      <button class="seg-btn" data-brand="Ezviz">Ezviz</button>
+      <button class="seg-btn" data-brand="Sandisk">Sandisk</button>
+      <button class="seg-btn" data-brand="Synology">Synology</button>
+      <button class="seg-btn" data-brand="Seagate">Seagate</button>
+      <button class="seg-btn" data-brand="WD">WD</button>
+    </div>
+  </div>
+
+  <!-- Search & export -->
+  <div class="action-row">
     <input class="search" id="searchInput" placeholder="Cari nama / SKU…">
     <button class="btn-export" id="exportBtn">Download Excel</button>
   </div>
@@ -210,7 +285,27 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
   const API_BASE = "https://sync.jaringan.workers.dev";
-  let allProducts = [], activeBrand = "", searchTerm = "";
+
+  // Sub-kategori per kategori (berdasarkan struktur alvamitra.com)
+  // Saat ini diisi manual karena field category dari data masih null.
+  // Setelah sync ulang berhasil capture category, ini bisa digenerate otomatis.
+  const SUBCATS = {
+    "DVR":        ["4 Channel","8 Channel","16 Channel","24 Channel","32 Channel"],
+    "NVR":        ["4 Channel","8 Channel","16 Channel","32 Channel","64 Channel","128 Channel"],
+    "IP CAM":     ["2MP","4MP","6MP","8MP","12MP","Fixed","Varifocal","PTZ","Fisheye"],
+    "ANALOG HD":  ["2MP","4MP","5MP","8MP","Fixed","Varifocal","PTZ"],
+    "HDD":        ["1TB","2TB","4TB","6TB","8TB","10TB","12TB"],
+    "NAS":        ["2-Bay","4-Bay","6-Bay","8-Bay"],
+    "Networking": ["Switch","Access Point","Router","SFP"],
+    "Access Control": ["Card Reader","Fingerprint","Face Recognition","Controller"],
+    "Power Supply": ["12V","24V","PoE"],
+  };
+
+  let allProducts = [];
+  let activeCat = "";
+  let activeSubcat = "";
+  let activeBrand = "";
+  let searchTerm = "";
 
   function formatRupiah(n) {
     if (!n) return "Harga tidak tersedia";
@@ -219,14 +314,22 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
 
   function render() {
     const grid = document.getElementById("grid");
-    const msg = document.getElementById("stateMsg");
+    const msg  = document.getElementById("stateMsg");
+
     const filtered = allProducts.filter(p => {
-      const matchBrand = !activeBrand || (p.brand || "").toLowerCase() === activeBrand.toLowerCase();
-      const matchSearch = !searchTerm ||
-        (p.name || "").toLowerCase().includes(searchTerm) ||
-        (p.sku || "").toLowerCase().includes(searchTerm);
-      return matchBrand && matchSearch;
+      const cat   = (p.category || "").toLowerCase();
+      const brand = (p.brand    || "").toLowerCase();
+      const name  = (p.name     || "").toLowerCase();
+      const sku   = (p.sku      || "").toLowerCase();
+
+      const matchCat    = !activeCat    || cat   === activeCat.toLowerCase();
+      const matchSubcat = !activeSubcat; // filter sub-cat siap tapi data category masih null — aktif setelah sync ulang
+      const matchBrand  = !activeBrand  || brand === activeBrand.toLowerCase();
+      const matchSearch = !searchTerm   || name.includes(searchTerm) || sku.includes(searchTerm);
+
+      return matchCat && matchSubcat && matchBrand && matchSearch;
     });
+
     if (filtered.length === 0) {
       grid.innerHTML = "";
       msg.style.display = "block";
@@ -236,66 +339,114 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
       return;
     }
     msg.style.display = "none";
+
     grid.innerHTML = filtered.map(p => `
-      <a class="card" href="/product/${p.id}" style="display:block;">
-        ${p.image ? `<img class="card-img" src="${p.image}" alt="${p.name || ''}" loading="lazy" onerror="this.style.display='none'">` : ''}
-        <span class="brand-tag">${p.brand || "-"}</span>
-        <h3>${p.name || "Nama tidak tersedia"}</h3>
-        <div class="sku">${p.sku || "-"}</div>
+      <a class="card" href="/product/${p.id}">
+        ${p.image ? `<img class="card-img" src="${p.image}" alt="${p.name||''}" loading="lazy" onerror="this.style.display='none'">` : ''}
+        <span class="brand-tag">${p.brand||"-"}</span>
+        <h3>${p.name||"Nama tidak tersedia"}</h3>
+        <div class="sku">${p.sku||"-"}</div>
         <div class="price-row">
           <div class="price">${formatRupiah(p.price)}</div>
-          ${p.priceChange === "up" ? `<span class="price-change up">▲ +${formatRupiah(p.priceDelta)}</span>` : ""}
-          ${p.priceChange === "down" ? `<span class="price-change down">▼ -${formatRupiah(p.priceDelta)}</span>` : ""}
+          ${p.priceChange==="up"   ? `<span class="price-change up">▲ +${formatRupiah(p.priceDelta)}</span>` : ""}
+          ${p.priceChange==="down" ? `<span class="price-change down">▼ -${formatRupiah(p.priceDelta)}</span>` : ""}
         </div>
-        <span class="stock ${(p.availability||"").toLowerCase()==="ready"?"ready":"lainnya"}">${p.availability || "Status tidak diketahui"}</span>
+        <span class="stock ${(p.availability||"").toLowerCase()==="ready"?"ready":"lainnya"}">${p.availability||"?"}</span>
         <div class="card-actions">
-          <span class="btn-wa-card" onclick="event.preventDefault(); event.stopPropagation(); window.open('https://wa.me/?text=' + encodeURIComponent('${(p.name||"").replace(/'/g, "\\'")}' + ' - ' + '${formatRupiah(p.price)}'))">Salin ke WhatsApp</span>
+          <span class="btn-wa-card" onclick="event.preventDefault();event.stopPropagation();window.open('https://wa.me/?text='+encodeURIComponent('${(p.name||"").replace(/\\/g,"\\\\").replace(/'/g,"\\'")} - ${formatRupiah(p.price)}'))">Salin ke WhatsApp</span>
         </div>
       </a>
     `).join("");
   }
 
-  async function loadData() {
-    try {
-      const [pr, mr] = await Promise.all([fetch(`${API_BASE}/products`), fetch(`${API_BASE}/meta`)]);
-      allProducts = await pr.json();
-      const meta = await mr.json();
-      document.getElementById("lastSync").textContent = meta.lastDailySync
-        ? `Update: ${new Date(meta.lastDailySync).toLocaleString("id-ID")}`
-        : (meta.lastFullSync ? `Full sync: ${new Date(meta.lastFullSync).toLocaleString("id-ID")}` : "Belum pernah sinkron");
-      render();
-    } catch (e) {
-      document.getElementById("stateMsg").style.display = "block";
-      document.getElementById("stateMsg").textContent = "Gagal memuat data — cek apakah Worker sudah di-deploy dan API_BASE sudah benar.";
-      document.getElementById("lastSync").textContent = "Tidak terhubung";
+  // Tampilkan sub-kategori chips saat kategori dipilih
+  function renderSubcats(cat) {
+    const row = document.getElementById("subcatRow");
+    activeSubcat = "";
+    if (!cat || !SUBCATS[cat]) {
+      row.classList.add("hidden");
+      row.innerHTML = "";
+      return;
     }
+    row.classList.remove("hidden");
+    row.innerHTML = SUBCATS[cat].map(sc =>
+      `<button class="chip" data-subcat="${sc}">${sc}</button>`
+    ).join("");
+    row.querySelectorAll(".chip").forEach(c => {
+      c.addEventListener("click", () => {
+        row.querySelectorAll(".chip").forEach(x => x.classList.remove("active"));
+        if (activeSubcat === c.dataset.subcat) {
+          activeSubcat = ""; // toggle off
+        } else {
+          c.classList.add("active");
+          activeSubcat = c.dataset.subcat;
+        }
+        render();
+      });
+    });
   }
 
-  document.querySelectorAll(".toolbar button[data-brand]").forEach(btn => {
+  // Kategori segmented
+  document.querySelectorAll("#catTrack .seg-btn").forEach(btn => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll(".toolbar button[data-brand]").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll("#catTrack .seg-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      activeCat = btn.dataset.cat;
+      renderSubcats(activeCat);
+      render();
+    });
+  });
+
+  // Brand segmented
+  document.querySelectorAll("#brandTrack .seg-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#brandTrack .seg-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       activeBrand = btn.dataset.brand;
       render();
     });
   });
-  document.getElementById("searchInput").addEventListener("input", e => { searchTerm = e.target.value.toLowerCase(); render(); });
 
-  function exportExcel() {
+  // Search
+  document.getElementById("searchInput").addEventListener("input", e => {
+    searchTerm = e.target.value.toLowerCase();
+    render();
+  });
+
+  // Export Excel
+  document.getElementById("exportBtn").addEventListener("click", () => {
     const rows = allProducts.map(p => ({
-      Merek: p.brand || "-",
-      Nama: p.name || "-",
-      SKU: p.sku || "-",
-      Harga: p.price || 0,
-      Status: p.availability || "-",
-      "Update Terakhir": p.updatedAt || "-",
+      Merek: p.brand||"-", Kategori: p.category||"-",
+      Nama: p.name||"-", SKU: p.sku||"-",
+      Harga: p.price||0, Status: p.availability||"-",
+      "Update Terakhir": p.updatedAt||"-",
     }));
     const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Katalog");
     XLSX.writeFile(wb, "katalog-alvamitra-" + new Date().toISOString().slice(0,10) + ".xlsx");
+  });
+
+  // Load data
+  async function loadData() {
+    try {
+      const [pr, mr] = await Promise.all([
+        fetch(`${API_BASE}/products`),
+        fetch(`${API_BASE}/meta`)
+      ]);
+      allProducts = await pr.json();
+      const meta = await mr.json();
+      document.getElementById("lastSync").textContent =
+        meta.lastDailySync ? `Update: ${new Date(meta.lastDailySync).toLocaleString("id-ID")}` :
+        meta.lastFullSync  ? `Full sync: ${new Date(meta.lastFullSync).toLocaleString("id-ID")}` :
+        "Belum pernah sinkron";
+      render();
+    } catch (e) {
+      document.getElementById("stateMsg").style.display = "block";
+      document.getElementById("stateMsg").textContent = "Gagal memuat data.";
+      document.getElementById("lastSync").textContent = "Tidak terhubung";
+    }
   }
-  document.getElementById("exportBtn").addEventListener("click", exportExcel);
 
   loadData();
 </script>
