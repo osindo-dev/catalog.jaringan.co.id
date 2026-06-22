@@ -111,6 +111,16 @@ a { text-decoration: none; color: inherit; }
 }
 .seg-btn:not(.active):hover { background: var(--light); color: var(--navy); }
 
+.filter-select {
+  width: 100%; padding: 10px 14px; border: 1px solid var(--border);
+  border-radius: 10px; font-size: 13px; font-weight: 600; color: var(--slate);
+  background: var(--white); cursor: pointer; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
+  padding-right: 36px;
+}
+.filter-select:focus { outline: 2px solid var(--blue); border-color: transparent; }
+
 /* ── Brand (segmented scrollable, baris kedua) ── */
 /* sama pakai .seg-scroll + .seg-track + .seg-btn */
 
@@ -216,28 +226,12 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
 
 <div class="filter-wrap">
 
-  <!-- Kategori -->
+  <!-- Kategori (dropdown, diisi dinamis dari data) -->
   <div class="filter-label">Kategori</div>
-  <div class="seg-scroll" id="catScroll">
-    <div class="seg-track" id="catTrack">
-      <button class="seg-btn active" data-cat="">Semua</button>
-      <button class="seg-btn" data-cat="Access Control">Access Control</button>
-      <button class="seg-btn" data-cat="Aksesoris">Aksesoris</button>
-      <button class="seg-btn" data-cat="Alarm">Alarm</button>
-      <button class="seg-btn" data-cat="ANALOG HD">Analog HD</button>
-      <button class="seg-btn" data-cat="Baby Cam">Baby Cam</button>
-      <button class="seg-btn" data-cat="Dashcam">Dashcam</button>
-      <button class="seg-btn" data-cat="DVR">DVR</button>
-      <button class="seg-btn" data-cat="HDD">HDD</button>
-      <button class="seg-btn" data-cat="IP CAM">IP CAM</button>
-      <button class="seg-btn" data-cat="Kabel">Kabel</button>
-      <button class="seg-btn" data-cat="Konektor">Konektor</button>
-      <button class="seg-btn" data-cat="License">License</button>
-      <button class="seg-btn" data-cat="NAS">NAS</button>
-      <button class="seg-btn" data-cat="Networking">Networking</button>
-      <button class="seg-btn" data-cat="NVR">NVR</button>
-      <button class="seg-btn" data-cat="Power Supply">Power Supply</button>
-    </div>
+  <div style="margin-bottom:16px;">
+    <select id="catSelect" class="filter-select">
+      <option value="">Semua Kategori</option>
+    </select>
   </div>
 
   <!-- Brand -->
@@ -331,14 +325,23 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
     `).join("");
   }
 
-  // Kategori segmented
-  document.querySelectorAll("#catTrack .seg-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll("#catTrack .seg-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      activeCat = btn.dataset.cat;
-      render();
+  // Isi dropdown kategori dari data aktual (hanya yang punya produk)
+  function populateCatDropdown() {
+    const cats = [...new Set(allProducts.map(p => p.category).filter(Boolean))].sort();
+    const sel = document.getElementById("catSelect");
+    sel.innerHTML = '<option value="">Semua Kategori</option>';
+    cats.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c;
+      opt.textContent = c;
+      sel.appendChild(opt);
     });
+  }
+
+  // Kategori dropdown
+  document.getElementById("catSelect").addEventListener("change", e => {
+    activeCat = e.target.value;
+    render();
   });
 
   // Brand segmented
@@ -379,6 +382,7 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
         fetch(`${API_BASE}/meta`)
       ]);
       allProducts = await pr.json();
+      populateCatDropdown();
       const meta = await mr.json();
       document.getElementById("lastSync").textContent =
         meta.lastDailySync ? `Update: ${new Date(meta.lastDailySync).toLocaleString("id-ID")}` :
