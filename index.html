@@ -237,7 +237,7 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
     }
     msg.style.display = "none";
     grid.innerHTML = filtered.map(p => `
-      <a class="card" href="${API_BASE}/product/${p.id}" style="display:block;">
+      <a class="card" href="/product/${p.id}" style="display:block;">
         ${p.image ? `<img class="card-img" src="${p.image}" alt="${p.name || ''}" loading="lazy" onerror="this.style.display='none'">` : ''}
         <span class="brand-tag">${p.brand || "-"}</span>
         <h3>${p.name || "Nama tidak tersedia"}</h3>
