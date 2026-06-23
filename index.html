@@ -201,6 +201,66 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
   .action-row { flex-direction: column; align-items: stretch; }
   .btn-export { text-align: center; }
 }
+
+/* ── Sync Panel ── */
+.sync-panel {
+  margin: 16px auto 24px;
+  max-width: 520px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  text-align: left;
+}
+.sync-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; cursor: pointer; user-select: none; gap: 10px;
+}
+.sync-panel-header:hover { background: var(--light); }
+.sync-header-left { display: flex; align-items: center; gap: 10px; }
+.sync-panel-title {
+  font-size: 12px; font-weight: 700; color: var(--navy);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.sync-status-pill {
+  font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 9999px;
+  background: #f1f5f9; color: #64748b;
+}
+.sync-status-pill.running { background: #dbeafe; color: #1d4ed8; }
+.sync-status-pill.done    { background: #dcfce7; color: #15803d; }
+.sync-status-pill.error   { background: #fee2e2; color: #b91c1c; }
+.sync-chevron { font-size: 12px; color: #94a3b8; transition: transform .2s; }
+.sync-chevron.open { transform: rotate(180deg); }
+.sync-panel-body { display: none; border-top: 1px solid var(--border); padding: 16px; }
+.sync-panel-body.open { display: block; }
+.sync-prog-bar-bg { background: #e2e8f0; border-radius: 9999px; height: 6px; margin-bottom: 8px; }
+.sync-prog-bar { background: var(--navy); border-radius: 9999px; height: 6px; width: 0%; transition: width .4s; }
+.sync-prog-bar.done  { background: var(--green); }
+.sync-prog-bar.error { background: #dc2626; }
+.sync-stats-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+.sync-stat { font-size: 11px; color: #64748b; }
+.sync-stat strong { display: block; font-size: 16px; font-weight: 900; color: var(--navy); }
+.sync-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.sync-btn {
+  font-size: 12px; font-weight: 700; padding: 7px 14px; border-radius: 8px;
+  border: none; cursor: pointer; transition: all .18s;
+}
+.sync-btn-primary { background: var(--navy); color: var(--white); }
+.sync-btn-primary:hover:not(:disabled) { background: var(--blue); }
+.sync-btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
+.sync-btn-resume  { background: #0ea5e9; color: var(--white); display: none; }
+.sync-btn-resume:hover { background: #0284c7; }
+.sync-btn-stop    { background: #fee2e2; color: #b91c1c; display: none; }
+.sync-btn-stop:hover { background: #fecaca; }
+.sync-btn-daily   { background: var(--light); color: var(--navy); border: 1px solid var(--border); }
+.sync-btn-daily:hover { background: #e2e8f0; }
+.sync-log {
+  font-size: 10px; color: #64748b; font-family: monospace;
+  max-height: 72px; overflow-y: auto;
+  background: #f8fafc; border-radius: 8px; padding: 8px;
+}
+.sync-log div { padding: 1px 0; }
+.sync-note { font-size: 10px; color: #94a3b8; margin-top: 10px; line-height: 1.5; }
 </style>
 </head>
 <body>
@@ -219,6 +279,38 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
   <div class="bg-blur"></div>
   <div class="hero-container">
     <span class="badge">Internal · Tidak untuk publik</span>
+
+    <!-- ── Sync Panel ── -->
+    <div class="sync-panel" id="syncPanel">
+      <div class="sync-panel-header" id="syncToggle">
+        <div class="sync-header-left">
+          <span class="sync-panel-title">Sinkronisasi Data</span>
+          <span class="sync-status-pill" id="syncPill">Memuat…</span>
+        </div>
+        <span class="sync-chevron" id="syncChevron">▼</span>
+      </div>
+      <div class="sync-panel-body" id="syncBody">
+        <div class="sync-prog-bar-bg">
+          <div class="sync-prog-bar" id="syncBar"></div>
+        </div>
+        <div class="sync-stats-row">
+          <div class="sync-stat"><strong id="sProc">—</strong>Diproses</div>
+          <div class="sync-stat"><strong id="sFilt">—</strong>Produk tersimpan</div>
+          <div class="sync-stat"><strong id="sTotal">—</strong>Total IDs</div>
+          <div class="sync-stat"><strong id="sPct">—</strong>Selesai</div>
+        </div>
+        <div class="sync-btns">
+          <button class="sync-btn sync-btn-primary" id="sBtnStart">▶ Full Sync</button>
+          <button class="sync-btn sync-btn-resume"  id="sBtnResume">⟳ Lanjutkan</button>
+          <button class="sync-btn sync-btn-stop"    id="sBtnStop">■ Stop</button>
+          <button class="sync-btn sync-btn-daily"   id="sBtnDaily">↻ Daily Sync</button>
+        </div>
+        <div class="sync-log" id="syncLog"></div>
+        <div class="sync-note">Full sync: ~272 chunk × 15 produk. Biarkan halaman terbuka sampai selesai.<br>Daily sync: update harga saja, lebih cepat, bisa ditinggal.</div>
+      </div>
+    </div>
+    <!-- ── /Sync Panel ── -->
+
     <h1 class="hero-title">Referensi Harga <span class="text-gradient">AlvaMitra</span><br>Merek Terpilih untuk Proposal &amp; Pengadaan</h1>
     <p class="hero-desc">Data disinkronkan otomatis dari katalog distributor — Hikvision, HiLook, Ezviz, Sandisk, Synology, Seagate, WD.</p>
   </div>
@@ -397,6 +489,163 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
   }
 
   loadData();
+
+  // ── Sync Panel Logic ──
+  const WORKER = API_BASE;
+  let syncRunning = false;
+  let syncStopped = false;
+
+  document.getElementById("syncToggle").addEventListener("click", () => {
+    document.getElementById("syncBody").classList.toggle("open");
+    document.getElementById("syncChevron").classList.toggle("open");
+  });
+
+  function syncLog(msg) {
+    const el = document.getElementById("syncLog");
+    const d  = document.createElement("div");
+    d.textContent = "[" + new Date().toLocaleTimeString("id-ID") + "] " + msg;
+    el.appendChild(d);
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function syncSetPill(status) {
+    const pill = document.getElementById("syncPill");
+    const labels = { running:"Berjalan…", done:"Selesai", error:"Error", queued:"Antrian", finalizing:"Finalisasi…" };
+    pill.className = "sync-status-pill " + (["running","done","error","queued","finalizing"].includes(status) ? status : "");
+    pill.textContent = labels[status] || status || "Idle";
+  }
+
+  function syncUpdateStats(d) {
+    const pct = d.percentDone || (d.totalIds ? Math.round((d.processed / d.totalIds) * 100) : 0);
+    document.getElementById("sProc").textContent  = d.processed != null ? d.processed : "—";
+    document.getElementById("sFilt").textContent  = d.filtered != null ? d.filtered : (d.totalFiltered != null ? d.totalFiltered : "—");
+    document.getElementById("sTotal").textContent = d.totalIds != null ? d.totalIds : "—";
+    document.getElementById("sPct").textContent   = pct ? pct + "%" : "—";
+    const bar = document.getElementById("syncBar");
+    bar.style.width = (pct || 0) + "%";
+    bar.className = "sync-prog-bar" + (d.status === "done" ? " done" : d.status === "error" ? " error" : "");
+  }
+
+  async function syncLoadStatus() {
+    try {
+      const r = await fetch(WORKER + "/sync/status");
+      const d = await r.json();
+      syncSetPill(d.status);
+      syncUpdateStats(d);
+      const canResume = d.status === "running" || d.status === "queued";
+      document.getElementById("sBtnResume").style.display = canResume && !syncRunning ? "inline-block" : "none";
+    } catch(e) { /* silent */ }
+  }
+
+  function syncResetButtons() {
+    document.getElementById("sBtnStart").disabled        = false;
+    document.getElementById("sBtnStop").style.display    = "none";
+    document.getElementById("sBtnResume").style.display  = "none";
+    syncRunning = false;
+    syncLoadStatus();
+  }
+
+  async function syncRunChunks() {
+    syncRunning = true;
+    let errors = 0;
+    const MAX_ERR = 5;
+
+    while (!syncStopped) {
+      try {
+        const r = await fetch(WORKER + "/sync/chunk?size=15");
+        const d = await r.json();
+
+        if (!r.ok && !d.done) {
+          errors++;
+          syncLog("Error: " + (d.error || r.status) + " (" + errors + "/" + MAX_ERR + ")");
+          if (errors >= MAX_ERR) { syncLog("Terlalu banyak error, berhenti."); break; }
+          await new Promise(res => setTimeout(res, 3000));
+          continue;
+        }
+
+        errors = 0;
+        syncUpdateStats(d);
+
+        if (d.done) {
+          syncSetPill("done");
+          syncLog("✅ Selesai! " + d.totalFiltered + " produk dari " + d.totalScanned + " scan.");
+          await loadData(); // reload katalog otomatis
+          break;
+        }
+
+        syncSetPill("running");
+        syncLog("Chunk " + d.processed + "/" + d.totalIds + " (" + d.percentDone + "%) · " + d.filtered + " produk target");
+        await new Promise(res => setTimeout(res, 300));
+
+      } catch(e) {
+        errors++;
+        syncLog("Network error: " + e.message + " (" + errors + "/" + MAX_ERR + ")");
+        if (errors >= MAX_ERR) { syncLog("Jaringan bermasalah, berhenti."); break; }
+        await new Promise(res => setTimeout(res, 5000));
+      }
+    }
+
+    if (syncStopped) syncLog("Dihentikan. Klik Lanjutkan untuk melanjutkan.");
+    syncResetButtons();
+  }
+
+  function syncOpenPanel() {
+    document.getElementById("syncBody").classList.add("open");
+    document.getElementById("syncChevron").classList.add("open");
+  }
+
+  document.getElementById("sBtnStart").addEventListener("click", async () => {
+    syncStopped = false;
+    document.getElementById("sBtnStart").disabled       = true;
+    document.getElementById("sBtnStop").style.display   = "inline-block";
+    document.getElementById("sBtnResume").style.display = "none";
+    syncOpenPanel();
+    syncLog("Menginisialisasi — fetch sitemap…");
+    try {
+      const r = await fetch(WORKER + "/sync/init");
+      const d = await r.json();
+      if (d.error) throw new Error(d.error);
+      syncLog("Sitemap OK: " + d.totalIds + " IDs. Mulai proses…");
+      await syncRunChunks();
+    } catch(e) {
+      syncLog("ERROR: " + e.message);
+      syncSetPill("error");
+      syncResetButtons();
+    }
+  });
+
+  document.getElementById("sBtnResume").addEventListener("click", async () => {
+    syncStopped = false;
+    document.getElementById("sBtnStart").disabled       = true;
+    document.getElementById("sBtnStop").style.display   = "inline-block";
+    document.getElementById("sBtnResume").style.display = "none";
+    syncOpenPanel();
+    syncLog("Melanjutkan dari queue yang ada…");
+    await syncRunChunks();
+  });
+
+  document.getElementById("sBtnStop").addEventListener("click", () => {
+    syncStopped = true;
+    syncLog("Stop diminta — menyelesaikan chunk saat ini…");
+  });
+
+  document.getElementById("sBtnDaily").addEventListener("click", async () => {
+    const btn = document.getElementById("sBtnDaily");
+    btn.disabled = true;
+    btn.textContent = "Memulai…";
+    syncOpenPanel();
+    try {
+      const r = await fetch(WORKER + "/sync/daily");
+      const d = await r.json();
+      syncLog("Daily sync: " + (d.message || d.status || JSON.stringify(d)));
+    } catch(e) {
+      syncLog("Daily sync error: " + e.message);
+    }
+    btn.disabled = false;
+    btn.textContent = "↻ Daily Sync";
+  });
+
+  syncLoadStatus();
 </script>
 </body>
 </html>
