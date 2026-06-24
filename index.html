@@ -142,6 +142,42 @@ a { text-decoration: none; color: inherit; }
 }
 .btn-export:hover { background: var(--blue); }
 
+/* ── Sort & active-filter row ── */
+.sort-row {
+  display: flex; gap: 8px; align-items: center;
+  flex-wrap: wrap; margin-bottom: 16px;
+}
+.sort-label {
+  font-size: 11px; font-weight: 700; color: #94a3b8;
+  text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap;
+}
+.sort-btn {
+  border: 1px solid var(--border); background: var(--white);
+  color: #64748b; padding: 6px 13px; border-radius: 8px;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  transition: all .15s; white-space: nowrap;
+}
+.sort-btn:hover { border-color: var(--navy); color: var(--navy); }
+.sort-btn.active { background: var(--navy); color: var(--white); border-color: var(--navy); }
+.active-filters {
+  display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 16px;
+}
+.active-filters:empty { display: none; margin-bottom: 0; }
+.filter-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(15,60,138,.07); color: var(--navy);
+  border: 1px solid rgba(15,60,138,.15);
+  padding: 4px 10px; border-radius: 9999px;
+  font-size: 11px; font-weight: 700; cursor: pointer; transition: all .15s;
+}
+.filter-chip:hover { background: #fee2e2; color: #b91c1c; border-color: #fecaca; }
+.btn-reset-all {
+  font-size: 11px; font-weight: 700; color: #94a3b8;
+  background: none; border: none; cursor: pointer; padding: 3px 6px;
+  border-radius: 6px; transition: color .15s;
+}
+.btn-reset-all:hover { color: #dc2626; }
+
 /* Grid / cards */
 main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
 .grid {
@@ -200,6 +236,8 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
   .card { padding: 12px; }
   .action-row { flex-direction: column; align-items: stretch; }
   .btn-export { text-align: center; }
+  .sort-row { gap: 6px; }
+  .sort-btn { padding: 5px 10px; font-size: 11px; }
 }
 
 /* ── Sync Panel ── */
@@ -346,6 +384,20 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
     <input class="search" id="searchInput" placeholder="Cari nama / SKU…">
     <button class="btn-export" id="exportBtn">Download Excel</button>
   </div>
+
+  <!-- Sort -->
+  <div class="sort-row">
+    <span class="sort-label">Urutkan</span>
+    <button class="sort-btn active" data-sort="">Default</button>
+    <button class="sort-btn" data-sort="price-asc">Harga ↑</button>
+    <button class="sort-btn" data-sort="price-desc">Harga ↓</button>
+    <button class="sort-btn" data-sort="name-asc">Nama A–Z</button>
+    <button class="sort-btn" data-sort="name-desc">Nama Z–A</button>
+  </div>
+
+  <!-- Active filter chips -->
+  <div class="active-filters" id="activeFilters"></div>
+
 </div>
 
 <main>
@@ -365,6 +417,7 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
   let activeCat = "";
   let activeBrand = "";
   let searchTerm = "";
+  let activeSort = "";
 
   function formatRupiah(n) {
     if (!n) return "Harga tidak tersedia";
@@ -375,7 +428,7 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
     const grid = document.getElementById("grid");
     const msg  = document.getElementById("stateMsg");
 
-    const filtered = allProducts.filter(p => {
+    let filtered = allProducts.filter(p => {
       const cat   = (p.category || "").toLowerCase();
       const brand = (p.brand    || "").toLowerCase();
       const name  = (p.name     || "").toLowerCase();
@@ -387,6 +440,14 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
 
       return matchCat && matchBrand && matchSearch;
     });
+
+    // Sort
+    if (activeSort === "price-asc")  filtered.sort((a,b) => (a.price||0) - (b.price||0));
+    if (activeSort === "price-desc") filtered.sort((a,b) => (b.price||0) - (a.price||0));
+    if (activeSort === "name-asc")   filtered.sort((a,b) => (a.name||"").localeCompare(b.name||"", "id"));
+    if (activeSort === "name-desc")  filtered.sort((a,b) => (b.name||"").localeCompare(a.name||"", "id"));
+
+    updateActiveFilters();
 
     if (filtered.length === 0) {
       grid.innerHTML = "";
@@ -430,6 +491,41 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
     });
   }
 
+  // updateActiveFilters: chip pills dibawah sort row
+  function updateActiveFilters() {
+    const el = document.getElementById("activeFilters");
+    const sortLabels = { "price-asc":"Harga \u2191","price-desc":"Harga \u2193","name-asc":"Nama A\u2013Z","name-desc":"Nama Z\u2013A" };
+    const chips = [];
+    if (activeCat)   chips.push({ label: "Kategori: " + activeCat,  clr: () => { activeCat = ""; document.getElementById("catSelect").value = ""; render(); } });
+    if (activeBrand) chips.push({ label: "Merek: " + activeBrand,   clr: () => { activeBrand = ""; document.querySelectorAll("#brandTrack .seg-btn").forEach(b => b.classList.toggle("active", b.dataset.brand === "")); render(); } });
+    if (searchTerm)  chips.push({ label: "Cari: \u201c" + searchTerm + "\u201d", clr: () => { searchTerm = ""; document.getElementById("searchInput").value = ""; render(); } });
+    if (activeSort)  chips.push({ label: "Urut: " + (sortLabels[activeSort] || activeSort), clr: () => { activeSort = ""; document.querySelectorAll(".sort-btn").forEach(b => b.classList.toggle("active", b.dataset.sort === "")); render(); } });
+    el.innerHTML = "";
+    chips.forEach(function(chip) {
+      const btn = document.createElement("button");
+      btn.className = "filter-chip";
+      btn.innerHTML = chip.label + ' <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg>';
+      btn.addEventListener("click", chip.clr);
+      el.appendChild(btn);
+    });
+    if (chips.length > 1) {
+      const ra = document.createElement("button");
+      ra.className = "btn-reset-all";
+      ra.textContent = "Reset semua";
+      ra.addEventListener("click", resetAllFilters);
+      el.appendChild(ra);
+    }
+  }
+
+  function resetAllFilters() {
+    activeCat = ""; activeBrand = ""; searchTerm = ""; activeSort = "";
+    document.getElementById("catSelect").value = "";
+    document.getElementById("searchInput").value = "";
+    document.querySelectorAll("#brandTrack .seg-btn").forEach(b => b.classList.toggle("active", b.dataset.brand === ""));
+    document.querySelectorAll(".sort-btn").forEach(b => b.classList.toggle("active", b.dataset.sort === ""));
+    render();
+  }
+
   // Kategori dropdown
   document.getElementById("catSelect").addEventListener("change", e => {
     activeCat = e.target.value;
@@ -450,6 +546,16 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
   document.getElementById("searchInput").addEventListener("input", e => {
     searchTerm = e.target.value.toLowerCase();
     render();
+  });
+
+  // Sort
+  document.querySelectorAll(".sort-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".sort-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      activeSort = btn.dataset.sort;
+      render();
+    });
   });
 
   // Export Excel
