@@ -342,6 +342,7 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
           <button class="sync-btn sync-btn-resume"  id="sBtnResume">⟳ Lanjutkan</button>
           <button class="sync-btn sync-btn-stop"    id="sBtnStop">■ Stop</button>
           <button class="sync-btn sync-btn-daily"   id="sBtnDaily">↻ Daily Sync</button>
+          <button class="sync-btn" id="sBtnTestNotify" style="background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;">🔔 Test Notifikasi</button>
         </div>
         <div class="sync-log" id="syncLog"></div>
         <div class="sync-note">Full sync: ~272 chunk × 15 produk. Biarkan halaman terbuka sampai selesai.<br>Daily sync: update harga saja, lebih cepat, bisa ditinggal.</div>
@@ -418,6 +419,7 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
   const syncHeaders = () => ({ "Authorization": "Bearer " + SYNC_TOKEN });
 
   let allProducts = [];
+  let lastFiltered = []; // hasil filter+sort terakhir, dipakai export Excel
   let activeCat = "";
   let activeBrand = "";
   let searchTerm = "";
@@ -451,6 +453,11 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
     if (activeSort === "name-asc")   filtered.sort((a,b) => (a.name||"").localeCompare(b.name||"", "id"));
     if (activeSort === "name-desc")  filtered.sort((a,b) => (b.name||"").localeCompare(a.name||"", "id"));
 
+    lastFiltered = filtered; // simpan untuk export Excel
+    const isFiltered = filtered.length < allProducts.length && allProducts.length > 0;
+    document.getElementById("exportBtn").textContent = isFiltered
+      ? "Export " + filtered.length + " produk"
+      : "Download Excel";
     updateActiveFilters();
 
     if (filtered.length === 0) {
@@ -564,7 +571,9 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
 
   // Export Excel
   document.getElementById("exportBtn").addEventListener("click", () => {
-    const rows = allProducts.map(p => ({
+    const source = lastFiltered.length > 0 ? lastFiltered : allProducts;
+    const isFiltered = lastFiltered.length > 0 && lastFiltered.length < allProducts.length;
+    const rows = source.map(p => ({
       Merek: p.brand||"-", Kategori: p.category||"-",
       Nama: p.name||"-", SKU: p.sku||"-",
       Harga: p.price||0, Status: p.availability||"-",
@@ -573,7 +582,8 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
     const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Katalog");
-    XLSX.writeFile(wb, "katalog-alvamitra-" + new Date().toISOString().slice(0,10) + ".xlsx");
+    const suffix = isFiltered ? "-filtered-" + source.length : "-semua-" + source.length;
+    XLSX.writeFile(wb, "katalog-alvamitra-" + new Date().toISOString().slice(0,10) + suffix + ".xlsx");
   });
 
   // Load data
@@ -760,6 +770,26 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
     }
     btn.disabled = false;
     btn.textContent = "↻ Daily Sync";
+  });
+
+  document.getElementById("sBtnTestNotify").addEventListener("click", async () => {
+    const btn = document.getElementById("sBtnTestNotify");
+    btn.disabled = true;
+    btn.textContent = "Mengirim…";
+    syncOpenPanel();
+    try {
+      const r = await fetch(WORKER + "/debug/test-notify", { headers: syncHeaders() });
+      const d = await r.json();
+      if (d.sent) {
+        syncLog("✅ Notifikasi terkirim ke topic: " + d.topic + ". Cek HP sekarang.");
+      } else {
+        syncLog("❌ Notifikasi gagal: " + (d.reason || JSON.stringify(d)));
+      }
+    } catch(e) {
+      syncLog("Test notify error: " + e.message);
+    }
+    btn.disabled = false;
+    btn.textContent = "🔔 Test Notifikasi";
   });
 
   syncLoadStatus();
