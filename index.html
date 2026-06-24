@@ -412,6 +412,10 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
   const API_BASE = "https://sync.jaringan.workers.dev";
+  // Token untuk endpoint sync — harus sama dengan secret SYNC_TOKEN di Worker.
+  // Ganti nilai ini setelah set secret di Cloudflare Dashboard.
+  const SYNC_TOKEN = "[GANTI_DENGAN_SYNC_TOKEN_ANDA]";
+  const syncHeaders = () => ({ "Authorization": "Bearer " + SYNC_TOKEN });
 
   let allProducts = [];
   let activeCat = "";
@@ -658,7 +662,7 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
 
     while (!syncStopped) {
       try {
-        const r = await fetch(WORKER + "/sync/chunk?size=15");
+        const r = await fetch(WORKER + "/sync/chunk?size=15", { headers: syncHeaders() });
         const d = await r.json();
 
         if (!r.ok && !d.done) {
@@ -708,7 +712,7 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
     syncOpenPanel();
     syncLog("Menginisialisasi — fetch sitemap…");
     try {
-      const r = await fetch(WORKER + "/sync/init");
+      const r = await fetch(WORKER + "/sync/init", { headers: syncHeaders() });
       if (!r.ok) {
         const t = await r.text();
         throw new Error("HTTP " + r.status + ": " + t.slice(0, 120));
@@ -748,7 +752,7 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
     btn.textContent = "Memulai…";
     syncOpenPanel();
     try {
-      const r = await fetch(WORKER + "/sync/daily");
+      const r = await fetch(WORKER + "/sync/daily", { headers: syncHeaders() });
       const d = await r.json();
       syncLog("Daily sync: " + (d.message || d.status || JSON.stringify(d)));
     } catch(e) {
