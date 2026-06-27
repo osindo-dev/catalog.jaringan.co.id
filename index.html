@@ -350,7 +350,7 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
     </div>
     <!-- ── /Sync Panel ── -->
 
-    <h1 class="hero-title">Referensi Harga <span class="text-gradient">AlvaMitra</span><br>Merek Terpilih untuk Proposal &amp; Pengadaan</h1>
+    <h1 class="hero-title">Referensi Harga <span class="text-gradient">Distributor</span><br>Merek Terpilih untuk Proposal &amp; Pengadaan</h1>
     <p class="hero-desc">Data disinkronkan otomatis dari katalog distributor — Hikvision, HiLook, Ezviz, Sandisk, Synology, Seagate, WD.</p>
   </div>
 </section>
@@ -407,16 +407,43 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
 </main>
 
 <footer class="footer">
-  Data internal — disinkronkan dari alvamitra.com. © PT Jaringan Semesta Raya.
+  Data internal — disinkronkan otomatis. © PT Jaringan Semesta Raya.
 </footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- XLSX dimuat lazy saat Export diklik -->
 <script>
   const API_BASE = "https://sync.jaringan.workers.dev";
   // Token untuk endpoint sync — harus sama dengan secret SYNC_TOKEN di Worker.
   // Ganti nilai ini setelah set secret di Cloudflare Dashboard.
   const SYNC_TOKEN = "22fe4e91fe9331261c92eddf04ef259cbda9a802836bac32";
   const syncHeaders = () => ({ "Authorization": "Bearer " + SYNC_TOKEN });
+
+  // ── Optimasi: debounce ──
+  // Menunda eksekusi fungsi sampai N ms setelah panggilan terakhir.
+  // Mencegah render() dipanggil setiap ketukan di search box.
+  function debounce(fn, ms) {
+    let timer;
+    return function(...args) {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn.apply(this, args), ms);
+    };
+  }
+
+  // ── Optimasi: XLSX lazy loader ──
+  // Library 750KB hanya dimuat saat tombol Export diklik pertama kali,
+  // bukan saat halaman dibuka. Menghemat ~750KB transfer untuk user
+  // yang tidak butuh export.
+  let xlsxLoaded = false;
+  function loadXLSX() {
+    return new Promise((resolve, reject) => {
+      if (xlsxLoaded) return resolve();
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+      s.onload = () => { xlsxLoaded = true; resolve(); };
+      s.onerror = () => reject(new Error('Gagal memuat library Excel'));
+      document.head.appendChild(s);
+    });
+  }
 
   let allProducts = [];
   let lastFiltered = []; // hasil filter+sort terakhir, dipakai export Excel
@@ -470,6 +497,9 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
     }
     msg.style.display = "none";
 
+    // rAF: beri browser satu frame napas sebelum rebuild DOM besar
+    // Mencegah UI freeze saat filter/sort 2800+ kartu
+    requestAnimationFrame(() => {
     grid.innerHTML = filtered.map(p => `
       <a class="card" href="/product/${p.id}">
         ${p.image ? `<img class="card-img" src="${p.image}" alt="${p.name||''}" loading="lazy" onerror="this.style.display='none'">` : ''}
@@ -487,6 +517,7 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
         </div>
       </a>
     `).join("");
+    }); // end requestAnimationFrame
   }
 
   // Isi dropdown kategori dari data aktual (hanya yang punya produk)
@@ -553,10 +584,11 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
     });
   });
 
-  // Search
+  // Search — debounce 250ms supaya render() tidak dipanggil setiap ketukan
+  const debouncedRender = debounce(render, 250);
   document.getElementById("searchInput").addEventListener("input", e => {
     searchTerm = e.target.value.toLowerCase();
-    render();
+    debouncedRender();
   });
 
   // Sort
@@ -570,20 +602,31 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
   });
 
   // Export Excel
-  document.getElementById("exportBtn").addEventListener("click", () => {
-    const source = lastFiltered.length > 0 ? lastFiltered : allProducts;
-    const isFiltered = lastFiltered.length > 0 && lastFiltered.length < allProducts.length;
-    const rows = source.map(p => ({
-      Merek: p.brand||"-", Kategori: p.category||"-",
-      Nama: p.name||"-", SKU: p.sku||"-",
-      Harga: p.price||0, Status: p.availability||"-",
-      "Update Terakhir": p.updatedAt||"-",
-    }));
-    const ws = XLSX.utils.json_to_sheet(rows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Katalog");
-    const suffix = isFiltered ? "-filtered-" + source.length : "-semua-" + source.length;
-    XLSX.writeFile(wb, "katalog-alvamitra-" + new Date().toISOString().slice(0,10) + suffix + ".xlsx");
+  document.getElementById("exportBtn").addEventListener("click", async () => {
+    const btn = document.getElementById("exportBtn");
+    const origText = btn.textContent;
+    btn.textContent = "Memuat…";
+    btn.disabled = true;
+    try {
+      await loadXLSX(); // lazy load 750KB hanya saat dibutuhkan
+      const source = lastFiltered.length > 0 ? lastFiltered : allProducts;
+      const isFiltered = lastFiltered.length > 0 && lastFiltered.length < allProducts.length;
+      const rows = source.map(p => ({
+        Merek: p.brand||"-", Kategori: p.category||"-",
+        Nama: p.name||"-", SKU: p.sku||"-",
+        Harga: p.price||0, Status: p.availability||"-",
+        "Update Terakhir": p.updatedAt||"-",
+      }));
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Katalog");
+      const suffix = isFiltered ? "-filtered-" + source.length : "-semua-" + source.length;
+      XLSX.writeFile(wb, "katalog-internal-" + new Date().toISOString().slice(0,10) + suffix + ".xlsx");
+    } catch(e) {
+      alert("Gagal export: " + e.message);
+    }
+    btn.textContent = origText;
+    btn.disabled = false;
   });
 
   // Load data
