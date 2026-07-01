@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
 <title>Katalog Internal — PT Jaringan Semesta Raya</title>
 <style>
 *, ::before, ::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -73,7 +74,7 @@ a { text-decoration: none; color: inherit; }
 }
 .hero-desc {
   font-size: 15px; color: #475569; max-width: 640px;
-  margin: 0 auto 0 auto; line-height: 1.625;
+  margin: 0 auto; line-height: 1.625;
 }
 
 /* Filter wrapper */
@@ -82,14 +83,13 @@ a { text-decoration: none; color: inherit; }
   padding: 28px 24px 0;
 }
 
-/* ── Kategori (segmented scrollable) ── */
 .filter-label {
   font-size: 11px; font-weight: 700; color: #94a3b8;
   text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;
 }
 .seg-scroll {
   overflow-x: auto; -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: none;
   padding-bottom: 4px; margin-bottom: 16px;
 }
 .seg-scroll::-webkit-scrollbar { display: none; }
@@ -121,10 +121,7 @@ a { text-decoration: none; color: inherit; }
 }
 .filter-select:focus { outline: 2px solid var(--blue); border-color: transparent; }
 
-/* ── Brand (segmented scrollable, baris kedua) ── */
-/* sama pakai .seg-scroll + .seg-track + .seg-btn */
-
-/* ── Search & export row ── */
+/* Search & export row */
 .action-row {
   display: flex; gap: 10px; align-items: center; margin-bottom: 24px;
   flex-wrap: wrap;
@@ -141,8 +138,9 @@ a { text-decoration: none; color: inherit; }
   cursor: pointer; transition: all 0.2s; white-space: nowrap;
 }
 .btn-export:hover { background: var(--blue); }
+.btn-export:disabled { background: #94a3b8; cursor: not-allowed; }
 
-/* ── Sort & active-filter row ── */
+/* Sort & active-filter row */
 .sort-row {
   display: flex; gap: 8px; align-items: center;
   flex-wrap: wrap; margin-bottom: 16px;
@@ -187,12 +185,16 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
 .card {
   background: var(--white); border-radius: 16px; padding: 16px;
   border: 1px solid #f1f5f9; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  transition: all 0.25s; display: block; color: inherit; text-decoration: none;
+  transition: all 0.25s; cursor: pointer;
 }
 .card:hover { border-color: rgba(0,176,255,0.35); box-shadow: 0 4px 12px rgba(0,0,0,0.07); transform: translateY(-1px); }
 .card-img {
   width: 100%; aspect-ratio: 1/1; object-fit: contain;
   background: var(--light); border-radius: 10px; margin-bottom: 12px;
+}
+.card-img-placeholder {
+  width: 100%; aspect-ratio: 1/1; background: var(--light);
+  border-radius: 10px; margin-bottom: 12px;
 }
 .brand-tag {
   display: inline-block; font-size: 10px; font-weight: 700; color: var(--blue);
@@ -215,9 +217,17 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
 .btn-wa-card {
   display: block; text-align: center; font-size: 12px; font-weight: 700;
   padding: 7px 10px; border-radius: 8px; background: #ecfdf3; color: var(--green);
-  border: 1px solid #bbf7d0; cursor: pointer;
+  border: 1px solid #bbf7d0; cursor: pointer; width: 100%;
 }
 .btn-wa-card:hover { background: #16a34a; color: var(--white); }
+
+/* Result count */
+.result-count {
+  font-size: 12px; color: #94a3b8; padding: 0 24px 12px;
+}
+
+/* Load more sentinel */
+.load-sentinel { height: 1px; }
 
 .state-msg { text-align: center; padding: 60px 24px; color: #94a3b8; font-size: 14px; }
 
@@ -240,7 +250,7 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
   .sort-btn { padding: 5px 10px; font-size: 11px; }
 }
 
-/* ── Sync Panel ── */
+/* Sync Panel */
 .sync-panel {
   margin: 16px auto 24px;
   max-width: 520px;
@@ -291,7 +301,8 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
 .sync-btn-stop    { background: #fee2e2; color: #b91c1c; display: none; }
 .sync-btn-stop:hover { background: #fecaca; }
 .sync-btn-daily   { background: var(--light); color: var(--navy); border: 1px solid var(--border); }
-.sync-btn-daily:hover { background: #e2e8f0; }
+.sync-btn-daily:hover:not(:disabled) { background: #e2e8f0; }
+.sync-btn-daily:disabled { opacity: .6; cursor: not-allowed; }
 .sync-log {
   font-size: 10px; color: #64748b; font-family: monospace;
   max-height: 72px; overflow-y: auto;
@@ -299,6 +310,52 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
 }
 .sync-log div { padding: 1px 0; }
 .sync-note { font-size: 10px; color: #94a3b8; margin-top: 10px; line-height: 1.5; }
+
+/* Modal produk */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 100;
+  background: rgba(0,0,0,0.45); align-items: center; justify-content: center;
+  padding: 24px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--white); border-radius: 20px; width: 100%; max-width: 480px;
+  max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  animation: modalIn .18s ease;
+}
+@keyframes modalIn { from { opacity:0; transform:scale(.96) translateY(8px); } to { opacity:1; transform:none; } }
+.modal-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 20px 20px 0; gap: 12px;
+}
+.modal-close {
+  flex-shrink: 0; background: var(--light); border: none; cursor: pointer;
+  border-radius: 8px; width: 32px; height: 32px; font-size: 18px; color: #64748b;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-close:hover { background: #e2e8f0; }
+.modal-body { padding: 16px 20px 24px; }
+.modal-img {
+  width: 100%; max-height: 220px; object-fit: contain;
+  background: var(--light); border-radius: 12px; margin-bottom: 16px;
+}
+.modal-brand { font-size: 11px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+.modal-name { font-size: 17px; font-weight: 900; color: var(--navy); margin-bottom: 4px; line-height: 1.35; }
+.modal-sku { font-size: 11px; color: #94a3b8; font-family: monospace; margin-bottom: 14px; }
+.modal-price { font-size: 26px; font-weight: 900; color: var(--dark); margin-bottom: 4px; }
+.modal-price-note { font-size: 12px; font-weight: 700; margin-bottom: 14px; }
+.modal-price-note.up { color: #dc2626; }
+.modal-price-note.down { color: var(--green); }
+.modal-row { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; }
+.modal-cat { font-size: 12px; color: #64748b; background: var(--light); padding: 4px 10px; border-radius: 8px; }
+.modal-updated { font-size: 11px; color: #94a3b8; margin-top: 12px; }
+.btn-wa-modal {
+  display: block; text-align: center; width: 100%; font-size: 14px; font-weight: 700;
+  padding: 12px; border-radius: 10px; background: #ecfdf3; color: var(--green);
+  border: 1px solid #bbf7d0; cursor: pointer; margin-top: 16px;
+}
+.btn-wa-modal:hover { background: #16a34a; color: var(--white); }
 </style>
 </head>
 <body>
@@ -318,7 +375,7 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
   <div class="hero-container">
     <span class="badge">Internal · Tidak untuk publik</span>
 
-    <!-- ── Sync Panel ── -->
+    <!-- Sync Panel -->
     <div class="sync-panel" id="syncPanel">
       <div class="sync-panel-header" id="syncToggle">
         <div class="sync-header-left">
@@ -338,17 +395,16 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
           <div class="sync-stat"><strong id="sPct">—</strong>Selesai</div>
         </div>
         <div class="sync-btns">
-          <button class="sync-btn sync-btn-primary" id="sBtnStart">▶ Full Sync</button>
-          <button class="sync-btn sync-btn-resume"  id="sBtnResume">⟳ Lanjutkan</button>
-          <button class="sync-btn sync-btn-stop"    id="sBtnStop">■ Stop</button>
-          <button class="sync-btn sync-btn-daily"   id="sBtnDaily">↻ Daily Sync</button>
-          <button class="sync-btn" id="sBtnTestNotify" style="background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;">🔔 Test Notifikasi</button>
+          <button class="sync-btn sync-btn-primary" id="sBtnStart">&#9654; Full Sync</button>
+          <button class="sync-btn sync-btn-resume"  id="sBtnResume">&#10227; Lanjutkan</button>
+          <button class="sync-btn sync-btn-stop"    id="sBtnStop">&#9632; Stop</button>
+          <button class="sync-btn sync-btn-daily"   id="sBtnDaily">&#8635; Daily Sync</button>
+          <button class="sync-btn" id="sBtnTestNotify" style="background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;">&#128276; Test Notifikasi</button>
         </div>
         <div class="sync-log" id="syncLog"></div>
         <div class="sync-note">Full sync: ~272 chunk × 15 produk. Biarkan halaman terbuka sampai selesai.<br>Daily sync: update harga saja, lebih cepat, bisa ditinggal.</div>
       </div>
     </div>
-    <!-- ── /Sync Panel ── -->
 
     <h1 class="hero-title">Referensi Harga <span class="text-gradient">Distributor</span><br>Merek Terpilih untuk Proposal &amp; Pengadaan</h1>
     <p class="hero-desc">Data disinkronkan otomatis dari katalog distributor — Hikvision, HiLook, Ezviz, Sandisk, Synology, Seagate, WD.</p>
@@ -357,7 +413,6 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
 
 <div class="filter-wrap">
 
-  <!-- Kategori (dropdown, diisi dinamis dari data) -->
   <div class="filter-label">Kategori</div>
   <div style="margin-bottom:16px;">
     <select id="catSelect" class="filter-select">
@@ -365,7 +420,6 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
     </select>
   </div>
 
-  <!-- Brand -->
   <div class="filter-label">Merek</div>
   <div class="seg-scroll" id="brandScroll">
     <div class="seg-track" id="brandTrack">
@@ -380,150 +434,324 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
     </div>
   </div>
 
-  <!-- Search & export -->
   <div class="action-row">
-    <input class="search" id="searchInput" placeholder="Cari nama / SKU…">
+    <input class="search" id="searchInput" placeholder="Cari nama / SKU…" autocomplete="off">
     <button class="btn-export" id="exportBtn">Download Excel</button>
   </div>
 
-  <!-- Sort -->
   <div class="sort-row">
     <span class="sort-label">Urutkan</span>
     <button class="sort-btn active" data-sort="">Default</button>
-    <button class="sort-btn" data-sort="price-asc">Harga ↑</button>
-    <button class="sort-btn" data-sort="price-desc">Harga ↓</button>
-    <button class="sort-btn" data-sort="name-asc">Nama A–Z</button>
-    <button class="sort-btn" data-sort="name-desc">Nama Z–A</button>
+    <button class="sort-btn" data-sort="price-asc">Harga &#8593;</button>
+    <button class="sort-btn" data-sort="price-desc">Harga &#8595;</button>
+    <button class="sort-btn" data-sort="name-asc">Nama A&#8211;Z</button>
+    <button class="sort-btn" data-sort="name-desc">Nama Z&#8211;A</button>
   </div>
 
-  <!-- Active filter chips -->
   <div class="active-filters" id="activeFilters"></div>
 
 </div>
 
 <main>
+  <div class="result-count" id="resultCount"></div>
   <div id="grid" class="grid"></div>
+  <div class="load-sentinel" id="loadSentinel"></div>
   <div id="stateMsg" class="state-msg" style="display:none;"></div>
 </main>
 
 <footer class="footer">
-  Data internal — disinkronkan otomatis. © PT Jaringan Semesta Raya.
+  Data internal — disinkronkan otomatis. &copy; PT Jaringan Semesta Raya.
 </footer>
 
-<!-- XLSX dimuat lazy saat Export diklik -->
+<!-- Modal detail produk -->
+<div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true">
+  <div class="modal" id="modalBox">
+    <div class="modal-header">
+      <div>
+        <div class="modal-brand" id="mBrand"></div>
+        <div class="modal-name"  id="mName"></div>
+        <div class="modal-sku"   id="mSku"></div>
+      </div>
+      <button class="modal-close" id="modalClose" aria-label="Tutup">&#215;</button>
+    </div>
+    <div class="modal-body">
+      <img class="modal-img" id="mImg" alt="" style="display:none;">
+      <div class="modal-price" id="mPrice"></div>
+      <div class="modal-price-note" id="mPriceNote"></div>
+      <div class="modal-row">
+        <span class="stock" id="mStock"></span>
+        <span class="modal-cat" id="mCat"></span>
+      </div>
+      <div class="modal-updated" id="mUpdated"></div>
+      <button class="btn-wa-modal" id="mBtnWa">&#128205; Salin ke WhatsApp</button>
+    </div>
+  </div>
+</div>
+
 <script>
-  const API_BASE = "https://sync.jaringan.workers.dev";
-  // Token untuk endpoint sync — harus sama dengan secret SYNC_TOKEN di Worker.
-  // Ganti nilai ini setelah set secret di Cloudflare Dashboard.
+(function () {
+  "use strict";
+
+  const API_BASE   = "https://sync.jaringan.workers.dev";
+  // Token disimpan di sisi klien karena halaman sudah dilindungi Cloudflare Access.
+  // Pastikan SYNC_TOKEN di Cloudflare Worker menggunakan nilai yang sama.
   const SYNC_TOKEN = "22fe4e91fe9331261c92eddf04ef259cbda9a802836bac32";
   const syncHeaders = () => ({ "Authorization": "Bearer " + SYNC_TOKEN });
 
-  // ── Optimasi: debounce ──
-  // Menunda eksekusi fungsi sampai N ms setelah panggilan terakhir.
-  // Mencegah render() dipanggil setiap ketukan di search box.
-  function debounce(fn, ms) {
-    let timer;
-    return function(...args) {
-      clearTimeout(timer);
-      timer = setTimeout(() => fn.apply(this, args), ms);
-    };
+  // ── Utility ──────────────────────────────────────────────────────────────
+
+  function esc(str) {
+    return String(str == null ? "" : str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
   }
 
-  // ── Optimasi: XLSX lazy loader ──
-  // Library 750KB hanya dimuat saat tombol Export diklik pertama kali,
-  // bukan saat halaman dibuka. Menghemat ~750KB transfer untuk user
-  // yang tidak butuh export.
+  function debounce(fn, ms) {
+    let t;
+    return function (...a) { clearTimeout(t); t = setTimeout(() => fn.apply(this, a), ms); };
+  }
+
+  function formatRupiah(n) {
+    if (!n) return "Harga tidak tersedia";
+    return "Rp " + Number(n).toLocaleString("id-ID");
+  }
+
+  // ── State ─────────────────────────────────────────────────────────────────
+
+  let allProducts  = [];
+  let filtered     = [];   // hasil filter+sort aktif
+  let hasFilter    = false; // apakah ada filter/sort/search aktif
+  let activeCat    = "";
+  let activeBrand  = "";
+  let searchTerm   = "";
+  let activeSort   = "";
+
+  // Virtual-scroll state
+  const PAGE_SIZE  = 48;
+  let renderedTo   = 0;    // jumlah kartu yang sudah di-render ke DOM
+
+  // ── XLSX lazy loader ──────────────────────────────────────────────────────
+
   let xlsxLoaded = false;
   function loadXLSX() {
     return new Promise((resolve, reject) => {
       if (xlsxLoaded) return resolve();
-      const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
-      s.onload = () => { xlsxLoaded = true; resolve(); };
-      s.onerror = () => reject(new Error('Gagal memuat library Excel'));
+      const s = document.createElement("script");
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+      s.onload  = () => { xlsxLoaded = true; resolve(); };
+      s.onerror = () => reject(new Error("Gagal memuat library Excel"));
       document.head.appendChild(s);
     });
   }
 
-  let allProducts = [];
-  let lastFiltered = []; // hasil filter+sort terakhir, dipakai export Excel
-  let activeCat = "";
-  let activeBrand = "";
-  let searchTerm = "";
-  let activeSort = "";
+  // ── Render: buat elemen DOM satu kartu (tanpa innerHTML) ──────────────────
 
-  function formatRupiah(n) {
-    if (!n) return "Harga tidak tersedia";
-    return "Rp " + Number(n).toLocaleString("id-ID");
+  function makeCard(p) {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.setAttribute("role", "button");
+    card.setAttribute("tabindex", "0");
+
+    if (p.image) {
+      const img = document.createElement("img");
+      img.className = "card-img";
+      img.src   = p.image;
+      img.alt   = p.name || "";
+      img.loading = "lazy";
+      img.addEventListener("error", () => { img.style.display = "none"; });
+      card.appendChild(img);
+    } else {
+      const ph = document.createElement("div");
+      ph.className = "card-img-placeholder";
+      card.appendChild(ph);
+    }
+
+    const brandTag = document.createElement("span");
+    brandTag.className = "brand-tag";
+    brandTag.textContent = p.brand || "-";
+    card.appendChild(brandTag);
+
+    const h3 = document.createElement("h3");
+    h3.textContent = p.name || "Nama tidak tersedia";
+    card.appendChild(h3);
+
+    const sku = document.createElement("div");
+    sku.className = "sku";
+    sku.textContent = p.sku || "-";
+    card.appendChild(sku);
+
+    const priceRow = document.createElement("div");
+    priceRow.className = "price-row";
+    const priceEl = document.createElement("div");
+    priceEl.className = "price";
+    priceEl.textContent = formatRupiah(p.price);
+    priceRow.appendChild(priceEl);
+    if (p.priceChange === "up") {
+      const pc = document.createElement("span");
+      pc.className = "price-change up";
+      pc.textContent = "▲ +" + formatRupiah(p.priceDelta);
+      priceRow.appendChild(pc);
+    } else if (p.priceChange === "down") {
+      const pc = document.createElement("span");
+      pc.className = "price-change down";
+      pc.textContent = "▼ -" + formatRupiah(p.priceDelta);
+      priceRow.appendChild(pc);
+    }
+    card.appendChild(priceRow);
+
+    const avail = (p.availability || "").toLowerCase();
+    const stock = document.createElement("span");
+    stock.className = "stock " + (avail === "ready" ? "ready" : "lainnya");
+    stock.textContent = p.availability || "?";
+    card.appendChild(stock);
+
+    const actions = document.createElement("div");
+    actions.className = "card-actions";
+    const waBtn = document.createElement("button");
+    waBtn.className = "btn-wa-card";
+    waBtn.textContent = "Salin ke WhatsApp";
+    waBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      const text = (p.name || "") + " - " + formatRupiah(p.price);
+      window.open("https://wa.me/?text=" + encodeURIComponent(text));
+    });
+    actions.appendChild(waBtn);
+    card.appendChild(actions);
+
+    card.addEventListener("click", () => openModal(p));
+    card.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openModal(p); } });
+
+    return card;
   }
 
-  function render() {
-    const grid = document.getElementById("grid");
-    const msg  = document.getElementById("stateMsg");
+  // ── Virtual scroll: append next page ─────────────────────────────────────
 
-    let filtered = allProducts.filter(p => {
-      const cat   = (p.category || "").toLowerCase();
-      const brand = (p.brand    || "").toLowerCase();
-      const name  = (p.name     || "").toLowerCase();
-      const sku   = (p.sku      || "").toLowerCase();
+  function appendNextPage() {
+    const grid  = document.getElementById("grid");
+    const start = renderedTo;
+    const end   = Math.min(start + PAGE_SIZE, filtered.length);
+    if (start >= filtered.length) return;
 
-      const matchCat    = !activeCat   || cat   === activeCat.toLowerCase();
-      const matchBrand  = !activeBrand || brand === activeBrand.toLowerCase();
-      const matchSearch = !searchTerm   || name.includes(searchTerm) || sku.includes(searchTerm);
+    const frag = document.createDocumentFragment();
+    for (let i = start; i < end; i++) {
+      frag.appendChild(makeCard(filtered[i]));
+    }
+    grid.appendChild(frag);
+    renderedTo = end;
+  }
 
+  // IntersectionObserver: load more kards saat sentinel terlihat
+  const sentinel = document.getElementById("loadSentinel");
+  const io = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting && renderedTo < filtered.length) {
+      appendNextPage();
+    }
+  }, { rootMargin: "300px" });
+  io.observe(sentinel);
+
+  // ── Filter + sort → set filtered → reset virtual scroll ──────────────────
+
+  function applyFilters() {
+    const cat    = activeCat.toLowerCase();
+    const brand  = activeBrand.toLowerCase();
+    const search = searchTerm;
+
+    filtered = allProducts.filter(p => {
+      const matchCat    = !cat    || (p.category || "").toLowerCase() === cat;
+      const matchBrand  = !brand  || (p.brand    || "").toLowerCase() === brand;
+      const matchSearch = !search || (p.name     || "").toLowerCase().includes(search)
+                                  || (p.sku      || "").toLowerCase().includes(search);
       return matchCat && matchBrand && matchSearch;
     });
 
-    // Sort
-    if (activeSort === "price-asc")  filtered.sort((a,b) => (a.price||0) - (b.price||0));
-    if (activeSort === "price-desc") filtered.sort((a,b) => (b.price||0) - (a.price||0));
-    if (activeSort === "name-asc")   filtered.sort((a,b) => (a.name||"").localeCompare(b.name||"", "id"));
-    if (activeSort === "name-desc")  filtered.sort((a,b) => (b.name||"").localeCompare(a.name||"", "id"));
+    if (activeSort === "price-asc")  filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
+    if (activeSort === "price-desc") filtered.sort((a, b) => (b.price || 0) - (a.price || 0));
+    if (activeSort === "name-asc")   filtered.sort((a, b) => (a.name || "").localeCompare(b.name || "", "id"));
+    if (activeSort === "name-desc")  filtered.sort((a, b) => (b.name || "").localeCompare(a.name || "", "id"));
 
-    lastFiltered = filtered; // simpan untuk export Excel
-    const isFiltered = filtered.length < allProducts.length && allProducts.length > 0;
-    document.getElementById("exportBtn").textContent = isFiltered
-      ? "Export " + filtered.length + " produk"
-      : "Download Excel";
+    hasFilter = !!(activeCat || activeBrand || searchTerm || activeSort);
+  }
+
+  function render() {
+    applyFilters();
+
+    const grid    = document.getElementById("grid");
+    const msg     = document.getElementById("stateMsg");
+    const countEl = document.getElementById("resultCount");
+
+    // reset virtual scroll
+    grid.innerHTML = "";
+    renderedTo = 0;
+
+    updateExportBtn();
     updateActiveFilters();
 
     if (filtered.length === 0) {
-      grid.innerHTML = "";
       msg.style.display = "block";
       msg.textContent = allProducts.length === 0
-        ? "Belum ada data. Jalankan sinkronisasi pertama di Worker (/sync/full)."
+        ? "Belum ada data. Jalankan sinkronisasi pertama di panel Sinkronisasi."
         : "Tidak ada produk yang cocok dengan filter ini.";
+      countEl.textContent = "";
       return;
     }
-    msg.style.display = "none";
 
-    // rAF: beri browser satu frame napas sebelum rebuild DOM besar
-    // Mencegah UI freeze saat filter/sort 2800+ kartu
-    requestAnimationFrame(() => {
-    grid.innerHTML = filtered.map(p => `
-      <a class="card" href="/product/${p.id}">
-        ${p.image ? `<img class="card-img" src="${p.image}" alt="${p.name||''}" loading="lazy" onerror="this.style.display='none'">` : ''}
-        <span class="brand-tag">${p.brand||"-"}</span>
-        <h3>${p.name||"Nama tidak tersedia"}</h3>
-        <div class="sku">${p.sku||"-"}</div>
-        <div class="price-row">
-          <div class="price">${formatRupiah(p.price)}</div>
-          ${p.priceChange==="up"   ? `<span class="price-change up">▲ +${formatRupiah(p.priceDelta)}</span>` : ""}
-          ${p.priceChange==="down" ? `<span class="price-change down">▼ -${formatRupiah(p.priceDelta)}</span>` : ""}
-        </div>
-        <span class="stock ${(p.availability||"").toLowerCase()==="ready"?"ready":"lainnya"}">${p.availability||"?"}</span>
-        <div class="card-actions">
-          <span class="btn-wa-card" onclick="event.preventDefault();event.stopPropagation();window.open('https://wa.me/?text='+encodeURIComponent('${(p.name||"").replace(/\\/g,"\\\\").replace(/'/g,"\\'")} - ${formatRupiah(p.price)}'))">Salin ke WhatsApp</span>
-        </div>
-      </a>
-    `).join("");
-    }); // end requestAnimationFrame
+    msg.style.display = "none";
+    countEl.textContent = filtered.length + " produk" +
+      (allProducts.length > filtered.length ? " dari " + allProducts.length : "");
+
+    appendNextPage(); // render halaman pertama langsung
   }
 
-  // Isi dropdown kategori dari data aktual (hanya yang punya produk)
+  // ── Export ────────────────────────────────────────────────────────────────
+
+  function updateExportBtn() {
+    const btn = document.getElementById("exportBtn");
+    if (hasFilter && filtered.length < allProducts.length) {
+      btn.textContent = "Export " + filtered.length + " produk";
+    } else {
+      btn.textContent = "Download Excel";
+    }
+  }
+
+  document.getElementById("exportBtn").addEventListener("click", async () => {
+    const btn = document.getElementById("exportBtn");
+    const orig = btn.textContent;
+    btn.textContent = "Memuat…";
+    btn.disabled = true;
+    try {
+      await loadXLSX();
+      const source = hasFilter ? filtered : allProducts;
+      const rows = source.map(p => ({
+        Merek: p.brand || "-",
+        Kategori: p.category || "-",
+        Nama: p.name || "-",
+        SKU: p.sku || "-",
+        Harga: p.price || 0,
+        Status: p.availability || "-",
+        "Update Terakhir": p.updatedAt || "-",
+      }));
+      const ws = window.XLSX.utils.json_to_sheet(rows);
+      const wb = window.XLSX.utils.book_new();
+      window.XLSX.utils.book_append_sheet(wb, ws, "Katalog");
+      const suffix = (hasFilter && filtered.length < allProducts.length)
+        ? "-filtered-" + filtered.length
+        : "-semua-" + allProducts.length;
+      window.XLSX.writeFile(wb, "katalog-internal-" + new Date().toISOString().slice(0, 10) + suffix + ".xlsx");
+    } catch (e) {
+      alert("Gagal export: " + e.message);
+    }
+    btn.textContent = orig;
+    btn.disabled = false;
+  });
+
+  // ── Kategori dropdown ─────────────────────────────────────────────────────
+
   function populateCatDropdown() {
     const cats = [...new Set(allProducts.map(p => p.category).filter(Boolean))].sort();
-    const sel = document.getElementById("catSelect");
+    const sel  = document.getElementById("catSelect");
     sel.innerHTML = '<option value="">Semua Kategori</option>';
     cats.forEach(c => {
       const opt = document.createElement("option");
@@ -533,23 +761,82 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
     });
   }
 
-  // updateActiveFilters: chip pills dibawah sort row
+  document.getElementById("catSelect").addEventListener("change", e => {
+    activeCat = e.target.value;
+    render();
+  });
+
+  // ── Brand segmented ───────────────────────────────────────────────────────
+
+  document.querySelectorAll("#brandTrack .seg-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#brandTrack .seg-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      activeBrand = btn.dataset.brand;
+      render();
+    });
+  });
+
+  // ── Search ────────────────────────────────────────────────────────────────
+
+  const debouncedRender = debounce(render, 250);
+  document.getElementById("searchInput").addEventListener("input", e => {
+    searchTerm = e.target.value.trim().toLowerCase();
+    debouncedRender();
+  });
+
+  // ── Sort ──────────────────────────────────────────────────────────────────
+
+  document.querySelectorAll(".sort-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".sort-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      activeSort = btn.dataset.sort;
+      render();
+    });
+  });
+
+  // ── Active filter chips ───────────────────────────────────────────────────
+
   function updateActiveFilters() {
     const el = document.getElementById("activeFilters");
-    const sortLabels = { "price-asc":"Harga \u2191","price-desc":"Harga \u2193","name-asc":"Nama A\u2013Z","name-desc":"Nama Z\u2013A" };
+    const sortLabels = {
+      "price-asc":  "Harga ↑",
+      "price-desc": "Harga ↓",
+      "name-asc":   "Nama A–Z",
+      "name-desc":  "Nama Z–A",
+    };
     const chips = [];
-    if (activeCat)   chips.push({ label: "Kategori: " + activeCat,  clr: () => { activeCat = ""; document.getElementById("catSelect").value = ""; render(); } });
-    if (activeBrand) chips.push({ label: "Merek: " + activeBrand,   clr: () => { activeBrand = ""; document.querySelectorAll("#brandTrack .seg-btn").forEach(b => b.classList.toggle("active", b.dataset.brand === "")); render(); } });
-    if (searchTerm)  chips.push({ label: "Cari: \u201c" + searchTerm + "\u201d", clr: () => { searchTerm = ""; document.getElementById("searchInput").value = ""; render(); } });
-    if (activeSort)  chips.push({ label: "Urut: " + (sortLabels[activeSort] || activeSort), clr: () => { activeSort = ""; document.querySelectorAll(".sort-btn").forEach(b => b.classList.toggle("active", b.dataset.sort === "")); render(); } });
+    if (activeCat)   chips.push({ label: "Kategori: " + activeCat,  clr: clearCat });
+    if (activeBrand) chips.push({ label: "Merek: " + activeBrand,   clr: clearBrand });
+    if (searchTerm)  chips.push({ label: "Cari: “" + searchTerm + "”", clr: clearSearch });
+    if (activeSort)  chips.push({ label: "Urut: " + (sortLabels[activeSort] || activeSort), clr: clearSort });
+
     el.innerHTML = "";
-    chips.forEach(function(chip) {
+    chips.forEach(chip => {
       const btn = document.createElement("button");
       btn.className = "filter-chip";
-      btn.innerHTML = chip.label + ' <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg>';
+      const label = document.createTextNode(chip.label + " ");
+      btn.appendChild(label);
+      // SVG close icon
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("viewBox", "0 0 10 10");
+      svg.setAttribute("fill", "none");
+      svg.setAttribute("stroke", "currentColor");
+      svg.setAttribute("stroke-width", "2");
+      svg.style.cssText = "width:10px;height:10px;flex-shrink:0;";
+      ["2,2,8,8", "8,2,2,8"].forEach(coords => {
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        const [x1,y1,x2,y2] = coords.split(",");
+        line.setAttribute("x1", x1); line.setAttribute("y1", y1);
+        line.setAttribute("x2", x2); line.setAttribute("y2", y2);
+        svg.appendChild(line);
+      });
+      btn.appendChild(svg);
       btn.addEventListener("click", chip.clr);
       el.appendChild(btn);
     });
+
     if (chips.length > 1) {
       const ra = document.createElement("button");
       ra.className = "btn-reset-all";
@@ -558,6 +845,11 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
       el.appendChild(ra);
     }
   }
+
+  function clearCat()    { activeCat = "";    document.getElementById("catSelect").value = ""; render(); }
+  function clearBrand()  { activeBrand = "";  document.querySelectorAll("#brandTrack .seg-btn").forEach(b => b.classList.toggle("active", b.dataset.brand === "")); render(); }
+  function clearSearch() { searchTerm = "";   document.getElementById("searchInput").value = ""; render(); }
+  function clearSort()   { activeSort = "";   document.querySelectorAll(".sort-btn").forEach(b => b.classList.toggle("active", b.dataset.sort === "")); render(); }
 
   function resetAllFilters() {
     activeCat = ""; activeBrand = ""; searchTerm = ""; activeSort = "";
@@ -568,92 +860,107 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
     render();
   }
 
-  // Kategori dropdown
-  document.getElementById("catSelect").addEventListener("change", e => {
-    activeCat = e.target.value;
-    render();
-  });
+  // ── Modal produk ──────────────────────────────────────────────────────────
 
-  // Brand segmented
-  document.querySelectorAll("#brandTrack .seg-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll("#brandTrack .seg-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      activeBrand = btn.dataset.brand;
-      render();
-    });
-  });
+  function openModal(p) {
+    document.getElementById("mBrand").textContent  = p.brand || "-";
+    document.getElementById("mName").textContent   = p.name  || "Nama tidak tersedia";
+    document.getElementById("mSku").textContent    = p.sku   || "-";
+    document.getElementById("mPrice").textContent  = formatRupiah(p.price);
 
-  // Search — debounce 250ms supaya render() tidak dipanggil setiap ketukan
-  const debouncedRender = debounce(render, 250);
-  document.getElementById("searchInput").addEventListener("input", e => {
-    searchTerm = e.target.value.toLowerCase();
-    debouncedRender();
-  });
-
-  // Sort
-  document.querySelectorAll(".sort-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".sort-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      activeSort = btn.dataset.sort;
-      render();
-    });
-  });
-
-  // Export Excel
-  document.getElementById("exportBtn").addEventListener("click", async () => {
-    const btn = document.getElementById("exportBtn");
-    const origText = btn.textContent;
-    btn.textContent = "Memuat…";
-    btn.disabled = true;
-    try {
-      await loadXLSX(); // lazy load 750KB hanya saat dibutuhkan
-      const source = lastFiltered.length > 0 ? lastFiltered : allProducts;
-      const isFiltered = lastFiltered.length > 0 && lastFiltered.length < allProducts.length;
-      const rows = source.map(p => ({
-        Merek: p.brand||"-", Kategori: p.category||"-",
-        Nama: p.name||"-", SKU: p.sku||"-",
-        Harga: p.price||0, Status: p.availability||"-",
-        "Update Terakhir": p.updatedAt||"-",
-      }));
-      const ws = XLSX.utils.json_to_sheet(rows);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Katalog");
-      const suffix = isFiltered ? "-filtered-" + source.length : "-semua-" + source.length;
-      XLSX.writeFile(wb, "katalog-internal-" + new Date().toISOString().slice(0,10) + suffix + ".xlsx");
-    } catch(e) {
-      alert("Gagal export: " + e.message);
+    const note = document.getElementById("mPriceNote");
+    if (p.priceChange === "up") {
+      note.textContent  = "▲ Naik +" + formatRupiah(p.priceDelta);
+      note.className    = "modal-price-note up";
+    } else if (p.priceChange === "down") {
+      note.textContent  = "▼ Turun -" + formatRupiah(p.priceDelta);
+      note.className    = "modal-price-note down";
+    } else {
+      note.textContent  = "";
+      note.className    = "modal-price-note";
     }
-    btn.textContent = origText;
-    btn.disabled = false;
+
+    const avail = (p.availability || "").toLowerCase();
+    const stock = document.getElementById("mStock");
+    stock.textContent = p.availability || "?";
+    stock.className   = "stock " + (avail === "ready" ? "ready" : "lainnya");
+
+    document.getElementById("mCat").textContent     = p.category || "-";
+    document.getElementById("mUpdated").textContent = p.updatedAt
+      ? "Update: " + new Date(p.updatedAt).toLocaleString("id-ID") : "";
+
+    const img = document.getElementById("mImg");
+    if (p.image) {
+      img.src   = p.image;
+      img.alt   = p.name || "";
+      img.style.display = "";
+      img.onerror = () => { img.style.display = "none"; };
+    } else {
+      img.style.display = "none";
+    }
+
+    document.getElementById("mBtnWa").onclick = () => {
+      const text = (p.name || "") + " - " + formatRupiah(p.price);
+      window.open("https://wa.me/?text=" + encodeURIComponent(text));
+    };
+
+    document.getElementById("modalOverlay").classList.add("open");
+    document.getElementById("modalClose").focus();
+  }
+
+  function closeModal() {
+    document.getElementById("modalOverlay").classList.remove("open");
+  }
+
+  document.getElementById("modalClose").addEventListener("click", closeModal);
+  document.getElementById("modalOverlay").addEventListener("click", e => {
+    if (e.target === e.currentTarget) closeModal();
+  });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") closeModal();
   });
 
-  // Load data
+  // ── Load data ─────────────────────────────────────────────────────────────
+
   async function loadData() {
+    const lastSyncEl = document.getElementById("lastSync");
+    const stateMsg   = document.getElementById("stateMsg");
+
+    // Produk dan meta di-fetch secara independen agar satu gagal tidak blokir yang lain
+    let productsOk = false;
     try {
-      const [pr, mr] = await Promise.all([
-        fetch(`${API_BASE}/products`),
-        fetch(`${API_BASE}/meta`)
-      ]);
-      allProducts = await pr.json();
+      const pr = await fetch(API_BASE + "/products");
+      if (!pr.ok) throw new Error("HTTP " + pr.status);
+      const data = await pr.json();
+      if (!Array.isArray(data)) throw new Error("Format data tidak valid");
+      allProducts = data;
       populateCatDropdown();
-      const meta = await mr.json();
-      document.getElementById("lastSync").textContent =
-        meta.lastDailySync ? `Update: ${new Date(meta.lastDailySync).toLocaleString("id-ID")}` :
-        meta.lastFullSync  ? `Full sync: ${new Date(meta.lastFullSync).toLocaleString("id-ID")}` :
-        "Belum pernah sinkron";
       render();
+      productsOk = true;
     } catch (e) {
-      document.getElementById("stateMsg").style.display = "block";
-      document.getElementById("stateMsg").textContent = "Gagal memuat data.";
-      document.getElementById("lastSync").textContent = "Tidak terhubung";
+      stateMsg.style.display = "block";
+      stateMsg.textContent   = "Gagal memuat data produk. Coba muat ulang halaman.";
+      lastSyncEl.textContent = "Tidak terhubung";
+    }
+
+    try {
+      const mr   = await fetch(API_BASE + "/meta");
+      if (!mr.ok) throw new Error("HTTP " + mr.status);
+      const meta = await mr.json();
+      lastSyncEl.textContent =
+        meta.lastDailySync ? "Update: " + new Date(meta.lastDailySync).toLocaleString("id-ID") :
+        meta.lastFullSync  ? "Full sync: " + new Date(meta.lastFullSync).toLocaleString("id-ID") :
+        "Belum pernah sinkron";
+    } catch (_) {
+      if (!productsOk) return; // sudah ada pesan error
+      lastSyncEl.textContent = "Info sync tidak tersedia";
     }
   }
 
   loadData();
 
-  // ── Sync Panel Logic ──
+  // ── Sync Panel ────────────────────────────────────────────────────────────
+
   const WORKER = API_BASE;
   let syncRunning = false;
   let syncStopped = false;
@@ -673,16 +980,16 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
 
   function syncSetPill(status) {
     const pill = document.getElementById("syncPill");
-    const labels = { running:"Berjalan…", done:"Selesai", error:"Error", queued:"Antrian", finalizing:"Finalisasi…" };
-    pill.className = "sync-status-pill " + (["running","done","error","queued","finalizing"].includes(status) ? status : "");
+    const labels = { running: "Berjalan…", done: "Selesai", error: "Error", queued: "Antrian", finalizing: "Finalisasi…" };
+    pill.className   = "sync-status-pill " + (["running","done","error","queued","finalizing"].includes(status) ? status : "");
     pill.textContent = labels[status] || status || "Idle";
   }
 
   function syncUpdateStats(d) {
     const pct = d.percentDone || (d.totalIds ? Math.round((d.processed / d.totalIds) * 100) : 0);
-    document.getElementById("sProc").textContent  = d.processed != null ? d.processed : "—";
-    document.getElementById("sFilt").textContent  = d.filtered != null ? d.filtered : (d.totalFiltered != null ? d.totalFiltered : "—");
-    document.getElementById("sTotal").textContent = d.totalIds != null ? d.totalIds : "—";
+    document.getElementById("sProc").textContent  = d.processed  != null ? d.processed  : "—";
+    document.getElementById("sFilt").textContent  = d.filtered   != null ? d.filtered   : (d.totalFiltered != null ? d.totalFiltered : "—");
+    document.getElementById("sTotal").textContent = d.totalIds   != null ? d.totalIds   : "—";
     document.getElementById("sPct").textContent   = pct ? pct + "%" : "—";
     const bar = document.getElementById("syncBar");
     bar.style.width = (pct || 0) + "%";
@@ -697,13 +1004,13 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
       syncUpdateStats(d);
       const canResume = d.status === "running" || d.status === "queued";
       document.getElementById("sBtnResume").style.display = canResume && !syncRunning ? "inline-block" : "none";
-    } catch(e) { /* silent */ }
+    } catch (_) { /* silent */ }
   }
 
   function syncResetButtons() {
-    document.getElementById("sBtnStart").disabled        = false;
-    document.getElementById("sBtnStop").style.display    = "none";
-    document.getElementById("sBtnResume").style.display  = "none";
+    document.getElementById("sBtnStart").disabled       = false;
+    document.getElementById("sBtnStop").style.display   = "none";
+    document.getElementById("sBtnResume").style.display = "none";
     syncRunning = false;
     syncLoadStatus();
   }
@@ -722,7 +1029,7 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
           errors++;
           syncLog("Error: " + (d.error || r.status) + " (" + errors + "/" + MAX_ERR + ")");
           if (errors >= MAX_ERR) { syncLog("Terlalu banyak error, berhenti."); break; }
-          await new Promise(res => setTimeout(res, 3000));
+          await delay(3000);
           continue;
         }
 
@@ -732,25 +1039,27 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
         if (d.done) {
           syncSetPill("done");
           syncLog("✅ Selesai! " + d.totalFiltered + " produk dari " + d.totalScanned + " scan.");
-          await loadData(); // reload katalog otomatis
+          await loadData();
           break;
         }
 
         syncSetPill("running");
         syncLog("Chunk " + d.processed + "/" + d.totalIds + " (" + d.percentDone + "%) · " + d.filtered + " produk target");
-        await new Promise(res => setTimeout(res, 300));
+        await delay(300);
 
-      } catch(e) {
+      } catch (e) {
         errors++;
         syncLog("Network error: " + e.message + " (" + errors + "/" + MAX_ERR + ")");
         if (errors >= MAX_ERR) { syncLog("Jaringan bermasalah, berhenti."); break; }
-        await new Promise(res => setTimeout(res, 5000));
+        await delay(5000);
       }
     }
 
     if (syncStopped) syncLog("Dihentikan. Klik Lanjutkan untuk melanjutkan.");
     syncResetButtons();
   }
+
+  function delay(ms) { return new Promise(res => setTimeout(res, ms)); }
 
   function syncOpenPanel() {
     document.getElementById("syncBody").classList.add("open");
@@ -774,10 +1083,9 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
       if (d.error) throw new Error(d.error);
       if (!d.totalIds || d.totalIds < 100) throw new Error("totalIds mencurigakan: " + d.totalIds);
       syncLog("Init OK — " + d.totalIds + " IDs dalam queue. Mulai chunk…");
-      // Jeda singkat supaya KV write dari init benar-benar committed sebelum chunk pertama
-      await new Promise(res => setTimeout(res, 1500));
+      await delay(1500);
       await syncRunChunks();
-    } catch(e) {
+    } catch (e) {
       syncLog("ERROR init: " + e.message);
       syncSetPill("error");
       syncResetButtons();
@@ -808,7 +1116,7 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
       const r = await fetch(WORKER + "/sync/daily", { headers: syncHeaders() });
       const d = await r.json();
       syncLog("Daily sync: " + (d.message || d.status || JSON.stringify(d)));
-    } catch(e) {
+    } catch (e) {
       syncLog("Daily sync error: " + e.message);
     }
     btn.disabled = false;
@@ -823,12 +1131,11 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
     try {
       const r = await fetch(WORKER + "/debug/test-notify", { headers: syncHeaders() });
       const d = await r.json();
-      if (d.sent) {
-        syncLog("✅ Notifikasi terkirim ke topic: " + d.topic + ". Cek HP sekarang.");
-      } else {
-        syncLog("❌ Notifikasi gagal: " + (d.reason || JSON.stringify(d)));
-      }
-    } catch(e) {
+      syncLog(d.sent
+        ? "✅ Notifikasi terkirim ke topic: " + d.topic + ". Cek HP sekarang."
+        : "❌ Notifikasi gagal: " + (d.reason || JSON.stringify(d))
+      );
+    } catch (e) {
       syncLog("Test notify error: " + e.message);
     }
     btn.disabled = false;
@@ -836,6 +1143,8 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
   });
 
   syncLoadStatus();
+
+}());
 </script>
 </body>
 </html>
