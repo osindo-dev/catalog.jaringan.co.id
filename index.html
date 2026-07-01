@@ -350,12 +350,23 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
 .modal-row { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; }
 .modal-cat { font-size: 12px; color: #64748b; background: var(--light); padding: 4px 10px; border-radius: 8px; }
 .modal-updated { font-size: 11px; color: #94a3b8; margin-top: 12px; }
+.modal-desc {
+  font-size: 13px; color: #475569; line-height: 1.6;
+  margin-top: 14px; border-top: 1px solid var(--border); padding-top: 14px;
+}
+.modal-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
 .btn-wa-modal {
   display: block; text-align: center; width: 100%; font-size: 14px; font-weight: 700;
   padding: 12px; border-radius: 10px; background: #ecfdf3; color: var(--green);
-  border: 1px solid #bbf7d0; cursor: pointer; margin-top: 16px;
+  border: 1px solid #bbf7d0; cursor: pointer;
 }
 .btn-wa-modal:hover { background: #16a34a; color: var(--white); }
+.btn-sheet-modal {
+  display: block; text-align: center; width: 100%; font-size: 14px; font-weight: 700;
+  padding: 12px; border-radius: 10px; background: rgba(15,60,138,0.06); color: var(--navy);
+  border: 1px solid rgba(15,60,138,0.15); cursor: pointer; text-decoration: none;
+}
+.btn-sheet-modal:hover { background: var(--navy); color: var(--white); }
 </style>
 </head>
 <body>
@@ -483,7 +494,11 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
         <span class="modal-cat" id="mCat"></span>
       </div>
       <div class="modal-updated" id="mUpdated"></div>
-      <button class="btn-wa-modal" id="mBtnWa">&#128205; Salin ke WhatsApp</button>
+      <div class="modal-desc" id="mDesc" style="display:none;"></div>
+      <div class="modal-actions">
+        <button class="btn-wa-modal" id="mBtnWa">&#128205; Salin ke WhatsApp</button>
+        <a class="btn-sheet-modal" id="mBtnSheet" target="_blank" rel="noopener" style="display:none;">&#128196; Lihat Product Sheet</a>
+      </div>
     </div>
   </div>
 </div>
@@ -904,8 +919,62 @@ main { max-width: 1100px; margin: 0 auto; padding-bottom: 64px; }
       window.open("https://wa.me/?text=" + encodeURIComponent(text));
     };
 
+    // Deskripsi produk (jika ada dari API)
+    const descEl = document.getElementById("mDesc");
+    if (p.description) {
+      descEl.textContent   = p.description;
+      descEl.style.display = "";
+    } else {
+      descEl.style.display = "none";
+    }
+
+    // Link product sheet ke website brand
+    const sheetBtn = document.getElementById("mBtnSheet");
+    const sheetUrl = p.url || p.productUrl || p.link || buildSheetUrl(p);
+    if (sheetUrl) {
+      sheetBtn.href         = sheetUrl;
+      sheetBtn.style.display = "";
+    } else {
+      sheetBtn.style.display = "none";
+    }
+
     document.getElementById("modalOverlay").classList.add("open");
     document.getElementById("modalClose").focus();
+  }
+
+  // Bangun URL product sheet berdasarkan brand & SKU jika API tidak menyediakan URL
+  function buildSheetUrl(p) {
+    const sku   = (p.sku   || "").trim();
+    const brand = (p.brand || "").toLowerCase();
+    const name  = encodeURIComponent((p.name || sku).trim());
+
+    if (brand === "hikvision" || brand === "hilook") {
+      // Cari di website Hikvision/HiLook resmi
+      return sku
+        ? "https://www.hikvision.com/en/search/?q=" + encodeURIComponent(sku)
+        : "https://www.hikvision.com/en/search/?q=" + name;
+    }
+    if (brand === "ezviz") {
+      return sku
+        ? "https://www.ezviz.com/search?keyword=" + encodeURIComponent(sku)
+        : "https://www.ezviz.com/search?keyword=" + name;
+    }
+    if (brand === "synology") {
+      return sku
+        ? "https://www.synology.com/en-global/search#q=" + encodeURIComponent(sku)
+        : "https://www.synology.com/en-global/search#q=" + name;
+    }
+    if (brand === "seagate") {
+      return "https://www.seagate.com/search/#q=" + (sku ? encodeURIComponent(sku) : name);
+    }
+    if (brand === "wd" || brand === "western digital") {
+      return "https://www.westerndigital.com/search#q=" + (sku ? encodeURIComponent(sku) : name);
+    }
+    if (brand === "sandisk") {
+      return "https://www.westerndigital.com/search#q=" + (sku ? encodeURIComponent(sku) : name);
+    }
+    // Fallback: Google search dengan nama + brand
+    return "https://www.google.com/search?q=" + encodeURIComponent((p.brand || "") + " " + (p.name || sku) + " product sheet datasheet");
   }
 
   function closeModal() {
